@@ -18,6 +18,7 @@ import {
 } from '@mui/icons-material';
 import ThemeToggle from './util/ThemeToggle';
 import { ColorModeContext } from "./util/ThemeContext.jsx";
+import {useNavigate} from "react-router-dom";
 
 const navItems = [
     { icon: <HomeIcon />, text: 'Home', href: '#hero', className: 'bx bx-home' },
@@ -72,6 +73,12 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
         e.preventDefault();
     }
 
+    const navigate = useNavigate();
+
+    const goToAuth = () => {
+        navigate("/auth");
+    };
+
     // Get current hue's primary main color from theme
     // fallback to theme.palette.primary.main if missing
     const currentHueColor =
@@ -116,6 +123,17 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                     tabIndex={0}
                 >
                     <ThemeToggle />
+                </Box>
+
+                <Box
+                    onClick={goToAuth}
+                    style={circleButtonStyle(theme)}
+                    onMouseEnter={handleHover(theme, true)}
+                    onMouseLeave={handleHover(theme, false)}
+                    role="button"
+                    tabIndex={0}
+                >
+                    <PersonIcon/>
                 </Box>
 
                 {/* Hue Cycle Button */}

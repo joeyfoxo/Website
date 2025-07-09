@@ -4,6 +4,7 @@ import '../assets/css/style.css';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import {useTheme} from "@mui/material";
+import RoundedButton from "./button/RoundedButton.jsx";
 
 function Projects() {
     const [showModel, setShowModel] = useState(false);
@@ -75,25 +76,18 @@ function Projects() {
                     {!expanded && (
                         <>
                             {/* KeeleMC project box */}
-                            <div
-                                className="project-box keelemc-box"
-                                onClick={handleZoom}
-                                style={{ cursor: 'pointer', position: 'relative' }}
-                            >
-                                <div className="interactive-label">
-                                    Interactive: click to see 3D world
-                                </div>
+                            <div className="project-box keelemc-box" onClick={handleZoom} style={{ cursor: 'pointer', position: 'relative' }}>
+                                <div className="interactive-label">Interactive: click to see 3D world</div>
                                 <img src="/img/projects/keelemc.png" className="img-fluid" alt="KeeleMC" />
                                 <div className="project-info">
                                     <Typography variant="h4" component="h4">KeeleMC</Typography>
                                     <Typography component="p" paragraph>
                                         A paper server built from the ground up with custom java plugins including a dedicated core, hub and gamemode plugins.
                                     </Typography>
-                                    <a href="https://github.com/Joeyfoxo/keelemc" className="rounded-button-red" target="_blank" rel="noreferrer">GitHub</a>
+                                    <RoundedButton href="https://github.com/Joeyfoxo/keelemc">GitHub</RoundedButton>
                                 </div>
                             </div>
 
-                            {/* Other projects */}
                             <div className="project-box">
                                 <img src="/img/projects/shields.png" className="img-fluid" alt="Mo Shields" />
                                 <div className="project-info">
@@ -101,7 +95,7 @@ function Projects() {
                                     <Typography component="p" paragraph>
                                         moShield is a custom Minecraft plugin for Paper Spigot, written in Java. It adds multiple shields, each with unique abilities that activate when attacked or interacted with.
                                     </Typography>
-                                    <a href="https://github.com/Joeyfoxo/moShield" className="rounded-button-red" target="_blank" rel="noreferrer">GitHub</a>
+                                    <RoundedButton href="https://github.com/joeyfoxo/moShield">GitHub</RoundedButton>
                                 </div>
                             </div>
 
@@ -112,7 +106,7 @@ function Projects() {
                                     <Typography component="p" paragraph>
                                         A personal project for friends, a simple Swift app which allows easy tracking for the common UK game Pub Golf. It contains penalties, tasks and complex UI.
                                     </Typography>
-                                    <a href="https://github.com/joeyfoxo/PubGolf2" className="rounded-button-red" target="_blank" rel="noreferrer">GitHub</a>
+                                    <RoundedButton href="https://github.com/joeyfoxo/PubGolf2">GitHub</RoundedButton>
                                 </div>
                             </div>
 
@@ -123,7 +117,7 @@ function Projects() {
                                     <Typography component="p" paragraph>
                                         For education I designed a basic C++ application using openFrameworks and ODE. I plan to redo this in a better engine.
                                     </Typography>
-                                    <a href="https://github.com/joeyfoxo/GameConcept" className="rounded-button-red" target="_blank" rel="noreferrer">GitHub</a>
+                                    <RoundedButton href="https://github.com/joeyfoxo/GameConcept">GitHub</RoundedButton>
                                 </div>
                             </div>
 
@@ -134,7 +128,7 @@ function Projects() {
                                     <Typography component="p" paragraph>
                                         A very early project written in C# which communicates to a server and transfers data. If continued I would have developed this into an example of a RAT.
                                     </Typography>
-                                    <a href="https://github.com/joeyfoxo/FxRAT" className="rounded-button-red" target="_blank" rel="noreferrer">GitHub</a>
+                                    <RoundedButton href="https://github.com/joeyfoxo/FxRAT">GitHub</RoundedButton>
                                 </div>
                             </div>
 
@@ -148,7 +142,7 @@ function Projects() {
                                     <Typography component="p" paragraph>
                                         This dissertation examines how Windows malware uses obfuscation and evasion techniques to bypass EDR systems and antivirus software. The research highlights the need for adaptive detection strategies to counter increasingly obfuscated threats.
                                     </Typography>
-                                    <a href="/Dissertation.pdf" className="rounded-button-red" target="_blank" rel="noreferrer">Dissertation</a>
+                                    <RoundedButton href="/Dissertation.pdf">Dissertation</RoundedButton>
                                 </div>
                             </div>
                         </>

@@ -1249,15 +1249,6 @@ section {
   }
 }
 
-.rounded-button-red {
-  color: #0a5fcd;
-  border: 2px solid #0a5fcd;
-  font-size: 25px;
-  font-weight: 400;
-  background-color: white; /* Adjust the color as needed */
-  border-radius: 20px;
-}
-
 .lang-bar-container {
   display: flex;
   height: 8px;
