@@ -6,9 +6,10 @@ import 'boxicons/css/boxicons.min.css';
 import 'aos/dist/aos.css';
 import 'swiper/swiper-bundle.css';
 import Index from "./components/index.jsx";
+import {ThemeContextProvider} from "./components/util/ThemeContext.jsx";
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  <ThemeContextProvider>
     <Index />
-  </StrictMode>,
+  </ThemeContextProvider>,
 )

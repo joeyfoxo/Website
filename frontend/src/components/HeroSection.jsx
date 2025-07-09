@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
 import Typed from 'typed.js';
-import background from '/img/background.JPG'; // adjust path as needed
+import background from '/img/background.JPG';
+import {Typography, useTheme} from "@mui/material"; // adjust path as needed
 
 function HeroSection() {
     const typedRef = useRef();
+    const theme = useTheme();
 
     useEffect(() => {
         const typed = new Typed(typedRef.current, {
@@ -27,8 +29,23 @@ function HeroSection() {
             }}
         >
             <div className="hero-container" data-aos="fade-in">
-                <p>Joey</p>
-                <h1><span ref={typedRef}></span></h1>
+                <Typography                     sx={{
+                    color: theme.palette.textColors.primaryDark,
+                }}>Joey</Typography>
+                <Typography
+                    variant="h1"
+                    component="h1"
+                    sx={{
+                        color: theme.palette.textColors.primaryDark,
+                        '& span': {
+                            paddingBottom: '4px',
+                            letterSpacing: '1px',
+                            borderBottom: `3px solid ${theme.palette.textColors.span}`,
+                        },
+                    }}
+                >
+                    <span ref={typedRef} />
+                </Typography>
             </div>
         </section>
     );

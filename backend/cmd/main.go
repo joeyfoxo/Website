@@ -1,7 +1,7 @@
 package main
 
 import (
-	"backend/internal/api"
+	"joeyfoxx/backend/internal"
 	"log"
 	"net/http"
 )

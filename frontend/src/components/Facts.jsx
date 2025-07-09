@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import PureCounter from '@srexi/purecounterjs';
 import '../assets/css/style.css';
 import BarChartLanguage from './BarChartLanguage.jsx';
+import { Typography, useTheme } from '@mui/material';
 
 export default function Facts() {
     const [repoCount, setRepoCount] = useState(0);
@@ -28,7 +29,7 @@ export default function Facts() {
                 const data = Object.entries(counts).map(([language, count]) => ({
                     language,
                     count,
-                    percentage: Math.round((count / total) * 1000) / 10, // e.g., 23.7%
+                    percentage: Math.round((count / total) * 1000) / 10,
                 }));
 
                 setRepoCount(total);
@@ -54,39 +55,57 @@ export default function Facts() {
         new PureCounter();
     }, [repoCount, yearsOfExperience, langCountData]);
 
-    // Normalize percentages to ensure they sum to 100%
     const totalPercentage = langCountData.reduce((sum, d) => sum + d.percentage, 0);
     const normalizedData = langCountData.map(d => ({
         ...d,
-        percentage: (d.percentage / totalPercentage) * 100
+        percentage: (d.percentage / totalPercentage) * 100,
     }));
 
-    // Create a refined list of languages to display:
     const displayLanguages = normalizedData
-        .filter((d) => d.percentage >= 5)                  // only languages ≥ 5%
-        .sort((a, b) => b.percentage - a.percentage)       // sort descending
+        .filter((d) => d.percentage >= 5)
+        .sort((a, b) => b.percentage - a.percentage)
         .map((d) => `${d.language} (${d.percentage.toFixed(0)}%)`);
+
+    const theme = useTheme();
 
     return (
         <section id="facts" className="facts">
             <div className="container">
                 <div className="row">
-                    {/* Language Usage Bar + Count */}
+                    {/* Language Usage */}
                     <div className="col-lg-4 col-md-6 portfolio-item d-md-flex align-items-md-stretch" data-aos="fade-up">
                         <div className="count-box">
                             <i className="bi bi-code-slash"></i>
-                            <span
+                            <Typography
+                                component="h3"
+                                className="purecounter"
                                 data-purecounter-start="0"
                                 data-purecounter-end={normalizedData.length}
                                 data-purecounter-duration="1"
-                                className="purecounter"
+                                variant="h3"
+                                sx={{
+                                    color: theme.palette.textColors.span,
+                                    pl: 7,
+                                    fontWeight: 'bold',
+                                }}
                             >
-                {normalizedData.length}
-              </span>
-                            <p><strong>Known Programming Languages</strong></p>
+                                {normalizedData.length}
+                            </Typography>
+                            <Typography
+                                sx={{ color: theme.palette.text.primary,
+                                    fontWeight: 'Bold',}}
+                            >
+                                Known Programming Languages
+                            </Typography>
                             <p><BarChartLanguage data={normalizedData} /></p>
-                            <p>{displayLanguages.join(', ')}</p>
-                            <p className="newi">Languages used in GitHub Projects</p>
+                            <Typography
+                                sx={{ color: theme.palette.text.primary,
+                                    fontWeight: 'Bold',}}
+                            >{displayLanguages.join(', ')}</Typography>
+                            <Typography
+                                sx={{ color: theme.palette.text.primary,
+                                fontStyle: 'italic',}}
+                            >Languages used in GitHub Projects</Typography>
                         </div>
                     </div>
 
@@ -94,14 +113,21 @@ export default function Facts() {
                     <div className="col-lg-4 col-md-6 portfolio-item d-md-flex align-items-md-stretch" data-aos="fade-up" data-aos-delay="100">
                         <div className="count-box">
                             <i className="bi bi-clipboard"></i>
-                            <span
+                            <Typography
+                                component="h3"
+                                className="purecounter"
                                 data-purecounter-start="0"
                                 data-purecounter-end={repoCount}
                                 data-purecounter-duration="1"
-                                className="purecounter"
+                                variant="h3"
+                                sx={{
+                                    color: theme.palette.textColors.span,
+                                    pl: 7,
+                                    fontWeight: 'bold',
+                                }}
                             >
-                {repoCount}
-              </span>
+                                {repoCount}
+                            </Typography>
                             <p><strong>Completed/Ongoing Projects</strong></p>
                         </div>
                     </div>
@@ -110,14 +136,21 @@ export default function Facts() {
                     <div className="col-lg-4 col-md-6 portfolio-item d-md-flex align-items-md-stretch" data-aos="fade-up" data-aos-delay="200">
                         <div className="count-box">
                             <i className="bi bi-stars"></i>
-                            <span
+                            <Typography
+                                component="h3"
+                                className="purecounter"
                                 data-purecounter-start="0"
                                 data-purecounter-end={yearsOfExperience}
                                 data-purecounter-duration="1"
-                                className="purecounter"
+                                variant="h3"
+                                sx={{
+                                    color: theme.palette.textColors.span,
+                                    pl: 7,
+                                    fontWeight: 'bold',
+                                }}
                             >
-                {yearsOfExperience.toFixed(1)}
-              </span>
+                                {yearsOfExperience.toFixed(1)}
+                            </Typography>
                             <p><strong>Years of Experience</strong></p>
                         </div>
                     </div>

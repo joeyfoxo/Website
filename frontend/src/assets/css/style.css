@@ -8,14 +8,16 @@
 /*--------------------------------------------------------------
 # General
 --------------------------------------------------------------*/
-body {
-  font-family: "Open Sans", sans-serif;
-  color: #272829;
-}
 
 /*section {*/
 /*  background: #050000;*/
 /*}*/
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
 
 a {
   color: #0a5fcd;
@@ -30,7 +32,6 @@ li a {
 }
 
 a:hover {
-  color: #5a4cff;
   text-decoration: none;
 }
 
@@ -115,7 +116,7 @@ h6 {
 
 #header .profile h1 a,
 #header .profile h1 a:hover {
-  color: #fff;
+
   text-decoration: none;
 }
 
@@ -135,22 +136,23 @@ h6 {
 }
 
 #header .profile .social-links a:hover {
-  background: #0a5fcd;
   color: #fff;
   text-decoration: none;
 }
 
 #main {
-  margin-left: 300px;
+  margin-left: 280px; /* default for desktop / wide screens */
+}
+
+@media (max-width: 600px) {
+  #main {
+    margin-left: 0; /* override on phones */
+  }
 }
 
 @media (max-width: 1421px) {
   #header {
     left: -300px;
-  }
-
-  #main {
-    margin-left: 0;
   }
 }
 
@@ -158,9 +160,6 @@ h6 {
 # Navigation Menu
 --------------------------------------------------------------*/
 /* Desktop Navigation */
-.nav-menu {
-  padding: 30px 0 0 0;
-}
 
 .nav-menu * {
   margin: 0;
@@ -199,12 +198,7 @@ h6 {
   color: #fff;
 }
 
-.nav-menu a:hover i,
-.nav-menu .active i,
-.nav-menu .active:focus i,
-.nav-menu li:hover>a i {
-  color: #0a5fcd;
-}
+
 
 /* Mobile Navigation */
 .mobile-nav-toggle {
@@ -277,22 +271,13 @@ h6 {
   font-size: 128px;
   font-weight: 700;
   line-height: 20px;
-  color: #fff;
 }
 
 #hero p {
-  color: #fff;
   margin-bottom: 40px;
   font-size: 70px;
   font-family: "Poppins", sans-serif;
 
-}
-
-#hero h1 span {
-  color: #fff;
-  padding-bottom: 4px;
-  letter-spacing: 1px;
-  border-bottom: 3px solid #0a5fcd;
 }
 
 @media (min-width: 1024px) {
@@ -345,7 +330,6 @@ section {
   font-weight: bold;
   margin-bottom: 20px;
   position: relative;
-  color: #487cff;
 }
 
 .section-title-resume h2::after {
@@ -354,7 +338,6 @@ section {
   display: block;
   width: 50px;
   height: 3px;
-  background: #0a5fcd;
   bottom: 0;
   left: 0;
 }
@@ -365,7 +348,6 @@ section {
   margin-bottom: 20px;
   padding-bottom: 20px;
   position: relative;
-  color: #487cff;
 }
 
 .section-title h2::after {
@@ -374,7 +356,6 @@ section {
   display: block;
   width: 50px;
   height: 3px;
-  background: #0a5fcd;
   bottom: 0;
   left: 0;
 }
@@ -394,7 +375,6 @@ section {
 .about .content h3 {
   font-weight: 700;
   font-size: 26px;
-  color: #487cff;
 }
 
 .about .content ul {
@@ -415,7 +395,6 @@ section {
 .about .content ul i {
   font-size: 16px;
   margin-right: 5px;
-  color: #0a5fcd;
   line-height: 0;
 }
 
@@ -438,7 +417,6 @@ section {
 .facts .count-box i {
   display: block;
   font-size: 44px;
-  color: #0a5fcd;
   float: left;
   line-height: 0;
 }
@@ -461,21 +439,15 @@ section {
   margin: 0 0 0 60px;
   font-family: "Raleway", sans-serif;
   font-size: 14px;
-  color: #0a004c;
 }
 
 .facts .count-box a {
   font-weight: 600;
   display: block;
   margin-top: 20px;
-  color: #0a5fcd;
   font-size: 15px;
   font-family: "Poppins", sans-serif;
   transition: ease-in-out 0.3s;
-}
-
-.facts .count-box a:hover {
-  color: #5a4cff;
 }
 
 /*--------------------------------------------------------------
@@ -512,7 +484,6 @@ section {
   width: 1px;
   height: 10px;
   transition: 0.9s;
-  background-color: #0a5fcd;
 }
 
 /*--------------------------------------------------------------
@@ -523,13 +494,11 @@ section {
   font-weight: 700;
   margin-top: 20px;
   margin-bottom: 20px;
-  color: #180505;
 }
 
 .resume .resume-item {
   padding: 0 0 20px 20px;
   margin-top: -2px;
-  border-left: 2px solid #5a4cff;
   position: relative;
 }
 
@@ -539,13 +508,11 @@ section {
   font-weight: 600;
   text-transform: uppercase;
   font-family: "Poppins", sans-serif;
-  color: #180505;
   margin-bottom: 10px;
 }
 
 .resume .resume-item h5 {
   font-size: 16px;
-  background: #e4edf9;
   padding: 5px 15px;
   display: inline-block;
   font-weight: 600;
@@ -573,7 +540,6 @@ section {
   left: -9px;
   top: 0;
   background: #fff;
-  border: 2px solid #3134e3;
 }
 
 /*--------------------------------------------------------------
@@ -897,17 +863,16 @@ section {
 }
 
 .rounded-button {
-  display: block;
+  display: flex;
+  justify-content: center; /* centers horizontally */
+  align-items: center; /* centers vertically */
   width: 150px;
   height: 50px;
-  text-align: center;
-  color: #0a5fcd;
-  border: 2px solid #0a5fcd;
   font-size: 25px;
-  font-weight: 400;
-  background-color: white; /* Adjust the color as needed */
+  background-color: transparent;
   border-radius: 20px;
   transform: translateX(-50%);
+  font-weight: 400;
 }
 
 /*--------------------------------------------------------------

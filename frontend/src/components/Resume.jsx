@@ -1,84 +1,160 @@
 import React from 'react';
+import { Button, Link, Typography, useTheme } from '@mui/material';
+import { styled } from '@mui/material/styles';
+
+// Styled resume-item with themed border
+const ThemedResumeItem = styled('div')(({ theme }) => ({
+    padding: '0 0 20px 20px',
+    marginTop: '-2px',
+    borderLeft: `2px solid ${theme.palette.textColors.primaryDark}`,
+    position: 'relative',
+    '&::before': {
+        content: '""',
+        position: 'absolute',
+        width: '16px',
+        height: '16px',
+        borderRadius: '50px',
+        left: '-9px',
+        top: 0,
+        background: '#fff',
+        border: `2px solid ${theme.palette.textColors.primaryDark}`,
+    },
+    '&:last-child': {
+        paddingBottom: 0,
+    },
+}));
 
 function Resume() {
+    const theme = useTheme();
+
+    const h5Styles = {
+        backgroundColor: theme.palette.textColors.label,
+        padding: '5px 15px',
+        display: 'inline-block',
+        fontWeight: 600,
+        marginBottom: '10px',
+        fontSize: '16px',
+        borderRadius: '5px',
+        color: theme.palette.textColors.span
+    };
+
     return (
         <section id="resume" className="resume">
             <div className="container">
                 <div className="section-title-resume">
-                    <h2>Resume</h2>
+                    <Typography variant="h4" component="h2" sx={{ color: theme.palette.primary.main }}>Resume</Typography>
                 </div>
 
                 <div className="resume-button-container">
-                    <a href="/CV.pdf" target="_blank" rel="noreferrer">
-                        <button className="rounded-button">CV</button>
-                    </a>
+                    <Link
+                        component="a"
+                        href="/CV.pdf"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-button"
+                        variant="outlined"
+                        sx={{
+                            textDecoration: 'none',
+                            color: theme.palette.textColors.span,
+                            border: `2px solid ${theme.palette.textColors.span}`,
+                        }}
+                    >
+                        CV
+                    </Link>
                 </div>
 
                 <div className="row">
                     {/* Education */}
                     <div className="col-lg-6" data-aos="fade-up">
-                        <h3 className="resume-title">Education</h3>
-                        <div className="resume-item">
-                            <h4>BSc Computer Science (Software Engineering)</h4>
-                            <h5>2022 - 2025</h5>
-                            <p>First Class Honors</p>
-                            <p><em>Keele University, Newcastle</em></p>
-                        </div>
-                        <div className="resume-item">
-                            <h4>A-Level Studies</h4>
-                            <h5>2020 - 2022</h5>
+                        <Typography sx={{ color: theme.palette.primary.main }} component="h3" className="resume-title">Education</Typography>
+
+                        <ThemedResumeItem className="resume-item">
+                            <Typography variant="h6" component="h4">BSc Computer Science (Software Engineering)</Typography>
+                            <Typography component="h5" variant="subtitle2" sx={h5Styles}>2022 - 2025</Typography>
+                            <Typography sx={{ color: theme.palette.textColors.span }} marginBottom={1}>First Class Honors</Typography>
+                            <Typography sx={{ color: theme.palette.textColors.span }} marginBottom={1}><em>Keele University, Newcastle</em></Typography>
+                        </ThemedResumeItem>
+
+                        <ThemedResumeItem className="resume-item">
+                            <Typography variant="h6" component="h4">A-Level Studies</Typography>
+                            <Typography component="h5" variant="subtitle2" sx={h5Styles}>2020 - 2022</Typography>
                             <ul>
-                                <li>Computer Science</li>
-                                <li>Physics</li>
-                                <li>Sociology</li>
-                                <li>EPQ</li>
+                                {['Computer Science', 'Physics', 'Sociology', 'EPQ'].map(subject => (
+                                    <Typography key={subject} component="li" paragraph sx={{ color: theme.palette.text.primary }}>
+                                        {subject}
+                                    </Typography>
+                                ))}
                             </ul>
-                        </div>
-                        <div className="resume-item">
-                            <h4>GCSE Studies</h4>
-                            <h5>2017 - 2020</h5>
+                        </ThemedResumeItem>
+
+                        <ThemedResumeItem className="resume-item">
+                            <Typography variant="h6" component="h4">GCSE Studies</Typography>
+                            <Typography component="h5" variant="subtitle2" sx={h5Styles}>2017 - 2020</Typography>
                             <ul>
-                                <li>Mathematics</li>
-                                <li>English</li>
-                                <li>Computer Science</li>
-                                <li>Triple Science</li>
-                                <li>Business Management</li>
-                                <li>IT</li>
+                                {[
+                                    'Mathematics',
+                                    'English',
+                                    'Computer Science',
+                                    'Triple Science',
+                                    'Business Management',
+                                    'IT'
+                                ].map(subject => (
+                                    <Typography key={subject} component="li" paragraph sx={{ color: theme.palette.text.primary }}>
+                                        {subject}
+                                    </Typography>
+                                ))}
                             </ul>
-                        </div>
+                        </ThemedResumeItem>
                     </div>
 
                     {/* Experience */}
                     <div className="col-lg-6" data-aos="fade-up" data-aos-delay="100">
-                        <h3 className="resume-title">Experience</h3>
-                        <div className="resume-item">
-                            <h4>Gameplay Developer</h4>
-                            <h5>2023 - 2024</h5>
-                            <p><em>Ziax LTD (CubeCraft Games)</em></p>
+                        <Typography sx={{ color: theme.palette.primary.main }} variant="h5" component="h3" className="resume-title">Experience</Typography>
+
+                        <ThemedResumeItem className="resume-item">
+                            <Typography variant="h6" component="h4">Gameplay Developer</Typography>
+                            <Typography component="h5" variant="subtitle2" sx={h5Styles}>2023 - 2024</Typography>
+                            <Typography sx={{ color: theme.palette.textColors.span }} marginBottom={1}><em>Ziax LTD (CubeCraft Games)</em></Typography>
                             <ul>
-                                <li>Developed scalable Java-based Minecraft minigames for 4M+ monthly users</li>
-                                <li>Implemented gameplay mechanics, performance optimizations, and bug fixes</li>
-                                <li>Supported 14K+ daily concurrent players with peak loads of 42K</li>
+                                {[
+                                    'Developed scalable Java-based Minecraft minigames for 4M+ monthly users',
+                                    'Implemented gameplay mechanics, performance optimizations, and bug fixes',
+                                    'Supported 14K+ daily concurrent players with peak loads of 42K'
+                                ].map(item => (
+                                    <Typography key={item} component="li" paragraph sx={{ color: theme.palette.text.primary }}>
+                                        {item}
+                                    </Typography>
+                                ))}
                             </ul>
-                        </div>
-                        <div className="resume-item">
-                            <h4>Software Engineer</h4>
-                            <h5>2022 - 2025</h5>
-                            <p><em>Furcation LTD</em></p>
+                        </ThemedResumeItem>
+
+                        <ThemedResumeItem className="resume-item">
+                            <Typography variant="h6" component="h4">Software Engineer</Typography>
+                            <Typography component="h5" variant="subtitle2" sx={h5Styles}>2022 - 2025</Typography>
+                            <Typography sx={{ color: theme.palette.textColors.span }} marginBottom={1}><em>Furcation LTD</em></Typography>
                             <ul>
-                                <li>Built scalable full-stack platform using TypeScript, React (Material UI), and Django</li>
-                                <li>Deployed on GCP to serve 1000+ users with reliable performance</li>
-                                <li>Collaborated on sustainable tech solutions and product delivery</li>
+                                {[
+                                    'Built scalable full-stack platform using TypeScript, React (Material UI), and Django',
+                                    'Deployed on GCP to serve 1000+ users with reliable performance',
+                                    'Collaborated on sustainable tech solutions and product delivery'
+                                ].map(item => (
+                                    <Typography key={item} component="li" paragraph sx={{ color: theme.palette.text.primary }}>
+                                        {item}
+                                    </Typography>
+                                ))}
                             </ul>
-                        </div>
-                        <div className="resume-item">
-                            <h4>Founder & Developer</h4>
-                            <h5>2017</h5>
-                            <p><em>SychoPvP</em></p>
+                        </ThemedResumeItem>
+
+                        <ThemedResumeItem className="resume-item">
+                            <Typography variant="h6" component="h4">Founder & Developer</Typography>
+                            <Typography component="h5" variant="subtitle2" sx={h5Styles}>2017</Typography>
+                            <Typography sx={{ color: theme.palette.textColors.span }} marginBottom={1}><em>SychoPvP</em></Typography>
                             <ul>
-                                <li>Custom plugins, team leadership, user experience design</li>
+                                <Typography component="li" paragraph sx={{ color: theme.palette.text.primary }}>
+                                    Custom plugins, team leadership, user experience design
+                                </Typography>
                             </ul>
-                        </div>
+                        </ThemedResumeItem>
                     </div>
                 </div>
             </div>

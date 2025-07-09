@@ -1,6 +1,5 @@
-import React, {useRef} from 'react';
+import React, { useEffect, useState } from 'react';
 import '../assets/css/style.css';
-import { useEffect } from 'react';
 import AOS from 'aos';
 import GLightbox from 'glightbox';
 import Isotope from 'isotope-layout';
@@ -11,77 +10,82 @@ import About from "./About.jsx";
 import Facts from "./Facts.jsx";
 import Resume from "./Resume.jsx";
 import Projects from "./Projects.jsx";
-import ModelViewer from "./util/ModelViewer.jsx";
+import ThemeToggle from "./util/ThemeToggle.jsx";
+import {
+    CssBaseline,
+    GlobalStyles,
+    IconButton,
+    useTheme,
+    Box,
+} from "@mui/material";
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
+import Header from "./Header.jsx";
 
-    function Index() {
-        useEffect(() => {
-            AOS.init({duration: 1000});
+function Index() {
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
+    const theme = useTheme();
 
-            new Swiper('.swiper-container', {
-                loop: true,
-                autoplay: {delay: 2500},
+    useEffect(() => {
+        AOS.init({ duration: 1000 });
+
+        new Swiper('.swiper-container', {
+            loop: true,
+            autoplay: { delay: 2500 },
+        });
+
+        GLightbox({ selector: '.glightbox' });
+
+        const isoGrid = document.querySelector('.isotope-container');
+        if (isoGrid) {
+            new Isotope(isoGrid, {
+                itemSelector: '.portfolio-item',
+                layoutMode: 'fitRows',
             });
+        }
+    }, []);
 
-            GLightbox({selector: '.glightbox'});
+    const toggleMobileNav = () => {
+        setMobileNavOpen(!mobileNavOpen);
+    };
 
-            const isoGrid = document.querySelector('.isotope-container');
-            if (isoGrid) {
-                new Isotope(isoGrid, {
-                    itemSelector: '.portfolio-item',
-                    layoutMode: 'fitRows',
-                });
-            }
-        }, []);
+    return (
+        <>
+            <CssBaseline />
+            <GlobalStyles
+                styles={{
+                    html: { height: '100%' },
+                    body: { height: '100%', margin: 0, padding: 0 },
+                    '#root': { height: '100%' },
+                }}
+            />
 
-        return (
-            <div>
-                {/*<i className="bi bi-list mobile-nav-toggle d-xl-none"></i>*/}
+            <IconButton
+                className="mobile-nav-toggle d-xl-none"
+                onClick={toggleMobileNav}
+                sx={{
+                    position: 'fixed',
+                    top: 15,
+                    right: 15,
+                    zIndex: 9999,
+                    color: theme.palette.text.primary,
+                }}
+            >
+                {mobileNavOpen ? <CloseIcon /> : <MenuIcon />}
+            </IconButton>
 
-                {/* ======= Header ======= */}
-                <header id="header" className="pb-4">
-                    <div className="d-flex flex-column">
-                        <div className="profile">
-                            <img src="/img/logo.png" alt="Logo" className="img-fluid rounded-rectangle"/>
-                            <h1 className="text-light"><a href="#hero">Joey</a></h1>
-                            <div className="social-links mt-3 text-center">
-                                <a href="#form"><i className="bx bx-envelope"></i></a>
-                            </div>
-                        </div>
+            {/* Pass mobileNavOpen state to Header so it can control drawer if needed */}
+            <Header mobileNavOpen={mobileNavOpen} setMobileNavOpen={setMobileNavOpen} />
 
-                        <nav id="navbar" className="nav-menu navbar">
-                            <ul>
-                                <li><a href="#hero" className="nav-link scrollto active"><i className="bx bx-home"></i>
-                                    <span>Home</span></a></li>
-                                <li><a href="#about" className="nav-link scrollto"><i className="bx bx-user"></i>
-                                    <span>About</span></a></li>
-                                <li><a href="#resume" className="nav-link scrollto"><i className="bx bx-file-blank"></i>
-                                    <span>Resume</span></a></li>
-                                <li><a href="#past-projects" className="nav-link scrollto"><i
-                                    className="bx bx-briefcase"></i> <span>Projects</span></a></li>
-                                {/*<li><a href="#form" className="nav-link scrollto"><i className="bx bx-envelope"></i>*/}
-                                {/*    <span>Contact Me!</span></a></li>*/}
-                            </ul>
-                        </nav>
-                    </div>
-                </header>
-
-                {/* ======= Hero Section ======= */}
+            <Box component="main" id="main">
                 <HeroSection />
-
-                <main id="main">
-                    {/* ======= About Section ======= */}
-                    <About />
-
-                    {/* ======= Facts Section ======= */}
-                    <Facts />
-
-                    {/* ======= Resume Section ======= */}
-                    <Resume />
-
-                    {/* ======= Projects Section ======= */}
-                    <Projects />
-                </main>
-            </div>
-        );
+                <About />
+                <Facts />
+                <Resume />
+                <Projects />
+            </Box>
+        </>
+    );
 }
+
 export default Index;
