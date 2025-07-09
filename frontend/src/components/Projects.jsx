@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ModelViewer from "./util/ModelViewer.jsx";
 import '../assets/css/style.css';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import {useTheme} from "@mui/material";
 
 function Projects() {
     const [showModel, setShowModel] = useState(false);
@@ -26,7 +29,7 @@ function Projects() {
     };
 
     const startCountdown = () => {
-        if (countdownRef.current) return; // prevent multiple timers
+        if (countdownRef.current) return;
         let count = 3;
         setCountdown(count);
         countdownRef.current = setInterval(() => {
@@ -47,17 +50,31 @@ function Projects() {
         setCountdown(null);
     };
 
+    const theme = useTheme();
+
     return (
         <section id="past-projects" className="past-projects">
             <div className="container">
                 <div className="section-title-resume">
-                    <h2>Personal Projects</h2>
+                    <Typography variant="h4" component="h2" sx={{ color: theme.palette.primary.main }}>Personal Projects</Typography>
                 </div>
 
-                <div className={`projects-grid ${fadeProjects && !expanded ? 'fade-out' : ''}`}>
+                {/* Responsive grid container using Box and CSS grid */}
+                <Box
+                    className={`projects-grid ${fadeProjects && !expanded ? 'fade-out' : ''}`}
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns: {
+                            xs: '1fr',       // mobile: 1 column
+                            sm: 'repeat(2, 1fr)', // small tablets: 2 columns
+                            md: 'repeat(3, 1fr)', // desktop: 3 columns (or your original)
+                        },
+                        gap: 2,
+                    }}
+                >
                     {!expanded && (
                         <>
-                            {/* KeeleMC project box content when NOT expanded */}
+                            {/* KeeleMC project box */}
                             <div
                                 className="project-box keelemc-box"
                                 onClick={handleZoom}
@@ -66,65 +83,71 @@ function Projects() {
                                 <div className="interactive-label">
                                     Interactive: click to see 3D world
                                 </div>
-                                <img src="/img/projects/keelemc.png" className="img-fluid" />
+                                <img src="/img/projects/keelemc.png" className="img-fluid" alt="KeeleMC" />
                                 <div className="project-info">
-                                    <h4>KeeleMC</h4>
-                                    <p>
+                                    <Typography variant="h4" component="h4">KeeleMC</Typography>
+                                    <Typography component="p" paragraph>
                                         A paper server built from the ground up with custom java plugins including a dedicated core, hub and gamemode plugins.
-                                    </p>
+                                    </Typography>
                                     <a href="https://github.com/Joeyfoxo/keelemc" className="rounded-button-red" target="_blank" rel="noreferrer">GitHub</a>
                                 </div>
                             </div>
 
                             {/* Other projects */}
                             <div className="project-box">
-                                <img src="/img/projects/shields.png" className="img-fluid" />
+                                <img src="/img/projects/shields.png" className="img-fluid" alt="Mo Shields" />
                                 <div className="project-info">
-                                    <h4>Mo Shields</h4>
-                                    <p>moShield is a custom Minecraft plugin for Paper Spigot, written in Java. It
-                                        adds multiple shields, each with unique abilities that activate when attacked or
-                                        interacted with.</p>
+                                    <Typography variant="h4" component="h4">Mo Shields</Typography>
+                                    <Typography component="p" paragraph>
+                                        moShield is a custom Minecraft plugin for Paper Spigot, written in Java. It adds multiple shields, each with unique abilities that activate when attacked or interacted with.
+                                    </Typography>
                                     <a href="https://github.com/Joeyfoxo/moShield" className="rounded-button-red" target="_blank" rel="noreferrer">GitHub</a>
                                 </div>
                             </div>
 
                             <div className="project-box">
-                                <img src="/img/projects/pubgolf.jpeg" className="img-fluid" />
+                                <img src="/img/projects/pubgolf.jpeg" className="img-fluid" alt="Pub Golf 2" />
                                 <div className="project-info">
-                                    <h4>Pub Golf 2</h4>
-                                    <p>A personal project for friends, a simple Swift app which allows easy tracking
-                                        for the common UK game Pub Golf. It contains penalties, tasks and complex UI.</p>
+                                    <Typography variant="h4" component="h4">Pub Golf 2</Typography>
+                                    <Typography component="p" paragraph>
+                                        A personal project for friends, a simple Swift app which allows easy tracking for the common UK game Pub Golf. It contains penalties, tasks and complex UI.
+                                    </Typography>
                                     <a href="https://github.com/joeyfoxo/PubGolf2" className="rounded-button-red" target="_blank" rel="noreferrer">GitHub</a>
                                 </div>
                             </div>
 
                             <div className="project-box">
-                                <img src="/img/projects/gameconcept.jpeg" className="img-fluid" />
+                                <img src="/img/projects/gameconcept.jpeg" className="img-fluid" alt="C++ Game Concept" />
                                 <div className="project-info">
-                                    <h4>C++ Game Concept</h4>
-                                    <p>For education I designed a basic C++ application using openFrameworks
-                                        and ODE. I plan to redo this in a better engine.</p>
+                                    <Typography variant="h4" component="h4">C++ Game Concept</Typography>
+                                    <Typography component="p" paragraph>
+                                        For education I designed a basic C++ application using openFrameworks and ODE. I plan to redo this in a better engine.
+                                    </Typography>
                                     <a href="https://github.com/joeyfoxo/GameConcept" className="rounded-button-red" target="_blank" rel="noreferrer">GitHub</a>
                                 </div>
                             </div>
 
                             <div className="project-box">
-                                <img src="/img/projects/rat.png" className="img-fluid" />
+                                <img src="/img/projects/rat.png" className="img-fluid" alt="Remote Access Trojan" />
                                 <div className="project-info">
-                                    <h4>Remote Access Trojan</h4>
-                                    <p>A very early project written in C# which communicates to a server and
-                                        transfers data. If continued I would have developed this into an example of a RAT.</p>
+                                    <Typography variant="h4" component="h4">Remote Access Trojan</Typography>
+                                    <Typography component="p" paragraph>
+                                        A very early project written in C# which communicates to a server and transfers data. If continued I would have developed this into an example of a RAT.
+                                    </Typography>
                                     <a href="https://github.com/joeyfoxo/FxRAT" className="rounded-button-red" target="_blank" rel="noreferrer">GitHub</a>
                                 </div>
                             </div>
 
                             <div className="project-box">
-                                <img src="/img/projects/diss.png" className="img-fluid" />
+                                <img src="/img/projects/diss.png" className="img-fluid" alt="Dissertation" />
                                 <div className="project-info">
-                                    <h4>Dissertation</h4>
-                                    <p>Analysing the use of obfuscation in malware to evade detection and trigger execution</p>
-                                    <p>This dissertation examines how Windows malware uses obfuscation and evasion techniques to bypass EDR systems and antivirus software.
-                                        The research highlights the need for adaptive detection strategies to counter increasingly obfuscated threats.</p>
+                                    <Typography variant="h4" component="h4">Dissertation</Typography>
+                                    <Typography component="p" paragraph>
+                                        Analysing the use of obfuscation in malware to evade detection and trigger execution
+                                    </Typography>
+                                    <Typography component="p" paragraph>
+                                        This dissertation examines how Windows malware uses obfuscation and evasion techniques to bypass EDR systems and antivirus software. The research highlights the need for adaptive detection strategies to counter increasingly obfuscated threats.
+                                    </Typography>
                                     <a href="/Dissertation.pdf" className="rounded-button-red" target="_blank" rel="noreferrer">Dissertation</a>
                                 </div>
                             </div>
@@ -147,13 +170,13 @@ function Projects() {
                                 </div>
                                 {countdown !== null && (
                                     <div className="countdown-overlay">
-                                        <p>Closing 3D Render in {countdown}</p>
+                                        <Typography>Closing 3D Render in {countdown}</Typography>
                                     </div>
                                 )}
                             </div>
                         </div>
                     )}
-                </div>
+                </Box>
             </div>
         </section>
     );

@@ -41,56 +41,100 @@ export const ThemeContextProvider = ({ children }) => {
 
     const huePresets = {
         red: {
-            backgroundDefaultLightRed: '#fff7f7',  // very light pinkish
-            backgroundDefaultDarkRed: '#121212',   // near black
-            backgroundPaperLightRed: '#ffe0e0',    // soft pink
-            backgroundPaperDarkRed: '#1e0000',     // dark red-black
-            primaryMainLightRed: '#ff4848',        // bright red
-            primaryMainDarkRed: '#ff8282',         // lighter red
-            textPrimaryLightRed: '#4c0000',        // deep red
-            textPrimaryDarkRed: '#fff5f5',         // off-white
-            textColorsLinkRed: '#cd0a0a',          // bright red link
-            textColorsLinkHoverRed: '#750000',     // dark red hover
-            textColorsPrimaryDarkRed: '#4e0000',   // very dark red
+            backgroundDefaultLightRed: '#fff7f7',
+            backgroundDefaultDarkRed: '#121212',
+
+            backgroundPaperLightRed: '#ffe0e0',
+            backgroundPaperDarkRed: '#1e0000',
+
+            primaryMainLightRed: '#ff4848',
+            primaryMainDarkRed: '#ff8282',
+
+            textPrimaryLightRed: '#4c0000',
+            textPrimaryDarkRed: '#ffffff',
+
+            textColorsLightLinkRed: '#ff6b6b',
+            textColorsLightLinkHoverRed: '#bf2b2b',
+
+            textColorsDarkLinkRed: '#cd0a0a',
+            textColorsDarkLinkHoverRed: '#750000',
+
+            textColorsSpanLightRed: '#cd0a0a',
+            textColorsSpanDarkRed: '#b33030',
+
+            textColorsPrimaryDarkRed: '#4e0000',
         },
         yellow: {
-            backgroundDefaultLightYellow: '#fffbee',  // pale creamy yellow (similar lightness to red)
-            backgroundDefaultDarkYellow: '#0e0c00',   // very dark olive brown (shifted from red black)
-            backgroundPaperLightYellow: '#fff2a8',    // pastel yellow paper
-            backgroundPaperDarkYellow: '#252200',     // darker mustard yellow
-            primaryMainLightYellow: '#ffcc33',        // bright gold yellow
-            primaryMainDarkYellow: '#ffdd66',         // lighter gold
-            textPrimaryLightYellow: '#4d4400',        // dark olive-yellow text
-            textPrimaryDarkYellow: '#fffde3',         // creamy white text
-            textColorsLinkYellow: '#d4a000',          // goldenrod link
-            textColorsLinkHoverYellow: '#a77b00',     // dark gold hover
-            textColorsPrimaryDarkYellow: '#4d3b00',   // dark mustard
+            backgroundDefaultLightYellow: '#fffbee',
+            backgroundDefaultDarkYellow: '#0e0c00',
+
+            backgroundPaperLightYellow: '#fff2a8',
+            backgroundPaperDarkYellow: '#252200',
+
+            primaryMainLightYellow: '#ffcc33',
+            primaryMainDarkYellow: '#ffdd66',
+
+            textPrimaryLightYellow: '#4d4400',
+            textPrimaryDarkYellow: '#fffde3',
+
+            textColorsLightLinkYellow: '#ffdd66',
+            textColorsLightLinkHoverYellow: '#bfa829',
+
+            textColorsDarkLinkYellow: '#d4a000',
+            textColorsDarkLinkHoverYellow: '#715d00',
+
+            textColorsSpanLightYellow: '#d4a000',
+            textColorsSpanDarkYellow: '#715d00',
+
+            textColorsPrimaryDarkYellow: '#4d3b00',
         },
         green: {
-            backgroundDefaultLightGreen: '#f3fff4',   // pale minty green
-            backgroundDefaultDarkGreen: '#0a1a0a',    // very dark forest green
-            backgroundPaperLightGreen: '#c8f5c9',     // light pastel green
-            backgroundPaperDarkGreen: '#1c321c',      // dark moss green
-            primaryMainLightGreen: '#55bb55',         // bright spring green
-            primaryMainDarkGreen: '#88cc88',          // lighter green
-            textPrimaryLightGreen: '#0a2f0a',         // deep green text
-            textPrimaryDarkGreen: '#e8f5e8',          // pale greenish white
-            textColorsLinkGreen: '#2e7d32',           // rich green link
-            textColorsLinkHoverGreen: '#1b5e20',      // dark green hover
-            textColorsPrimaryDarkGreen: '#0d2e0d',    // very dark green
+            backgroundDefaultLightGreen: '#f3fff4',
+            backgroundDefaultDarkGreen: '#0a1a0a',
+
+            backgroundPaperLightGreen: '#c8f5c9',
+            backgroundPaperDarkGreen: '#1c321c',
+
+            primaryMainLightGreen: '#55bb55',
+            primaryMainDarkGreen: '#88cc88',
+
+            textPrimaryLightGreen: '#0a2f0a',
+            textPrimaryDarkGreen: '#e8f5e8',
+
+            textColorsLightLinkGreen: '#88cc88',
+            textColorsLightLinkHoverGreen: '#5fa65f',
+
+            textColorsDarkLinkGreen: '#2e7d32',
+            textColorsDarkLinkHoverGreen: '#1b5e20',
+
+            textColorsSpanLightGreen: '#2e7d32',
+            textColorsSpanDarkGreen: '#1b5e20',
+
+            textColorsPrimaryDarkGreen: '#0d2e0d',
         },
         blue: {
-            backgroundDefaultLightBlue: '#f2faff',    // very pale icy blue
-            backgroundDefaultDarkBlue: '#0b101a',     // very dark navy blue
-            backgroundPaperLightBlue: '#cde1ff',      // pastel sky blue
-            backgroundPaperDarkBlue: '#11263b',       // dark slate blue
-            primaryMainLightBlue: '#4a90e2',          // bright cerulean blue
-            primaryMainDarkBlue: '#7ab0ff',           // lighter blue
-            textPrimaryLightBlue: '#021f3a',          // deep navy text
-            textPrimaryDarkBlue: '#ddeeff',           // pale blue-white
-            textColorsLinkBlue: '#0056b3',            // strong blue link
-            textColorsLinkHoverBlue: '#003366',       // dark navy hover
-            textColorsPrimaryDarkBlue: '#06192e',     // very dark navy
+            backgroundDefaultLightBlue: '#f2faff',
+            backgroundDefaultDarkBlue: '#0b101a',
+
+            backgroundPaperLightBlue: '#cde1ff',
+            backgroundPaperDarkBlue: '#11263b',
+
+            primaryMainLightBlue: '#4a90e2',
+            primaryMainDarkBlue: '#7ab0ff',
+
+            textPrimaryLightBlue: '#021f3a',
+            textPrimaryDarkBlue: '#ddeeff',
+
+            textColorsLightLinkBlue: '#7ab0ff',
+            textColorsLightLinkHoverBlue: '#3d65a7',
+
+            textColorsDarkLinkBlue: '#0056b3',
+            textColorsDarkLinkHoverBlue: '#003366',
+
+            textColorsSpanLightBlue: '#0056b3',
+            textColorsSpanDarkBlue: '#003366',
+
+            textColorsPrimaryDarkBlue: '#06192e',
         },
     };
 
@@ -127,11 +171,18 @@ export const ThemeContextProvider = ({ children }) => {
                     textColors: {
                         span:
                             mode === 'dark'
-                                ? currentHue[`textColorsLinkHover${capitalize(hue)}`]
-                                : currentHue[`textColorsLink${capitalize(hue)}`],
+                                ? currentHue[`textColorsSpanDark${capitalize(hue)}`]
+                                : currentHue[`textColorsSpanLight${capitalize(hue)}`],
                         util: mode === 'dark' ? '#d3a3a3' : '#c08888',
-                        link: currentHue[`textColorsLink${capitalize(hue)}`],
-                        linkHover: currentHue[`textColorsLinkHover${capitalize(hue)}`],
+                        link:
+                            mode === 'dark'
+                                ? currentHue[`textColorsDarkLink${capitalize(hue)}`]
+                                : currentHue[`textColorsLightLink${capitalize(hue)}`],
+
+                        linkHover:
+                            mode === 'dark'
+                                ? currentHue[`textColorsDarkLinkHover${capitalize(hue)}`]
+                                : currentHue[`textColorsLightLinkHover${capitalize(hue)}`],
                         primaryDark:
                             currentHue[`textColorsPrimaryDark${capitalize(hue)}`],
                         primary:
