@@ -31,7 +31,7 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-    const { toggleColorMode, setHue } = useContext(ColorModeContext);
+    const {setHue } = useContext(ColorModeContext);
 
     const hues = ['red', 'yellow', 'green', 'blue'];
     const [localHueIndex, setLocalHueIndex] = useState(0);
@@ -91,7 +91,7 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                 variant="h3"
                 sx={{ color: theme.palette.text.primary, mt: 1, fontWeight: 600 }}
             >
-                Joey
+                James
             </Typography>
 
             <Box
@@ -103,17 +103,14 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                     mt: 2,
                 }}
             >
-                {/* Email Button */}
                 <a
-                    href="#form"
+                    href="mailto:me@joeyfox.dev"
                     style={circleButtonStyle(theme)}
                     onMouseEnter={handleHover(theme, true)}
                     onMouseLeave={handleHover(theme, false)}
                 >
                     <EmailIcon />
                 </a>
-
-                {/* Theme Toggle Button */}
                 <Box
                     onClick={ThemeChange}
                     style={circleButtonStyle(theme)}
@@ -176,7 +173,7 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
     const NavLinks = (
         <Box component="nav" id="navbar" className={`nav-menu navbar`}>
             <ul>
-                {navItems.map(({ icon, text, href, className }) => (
+                {navItems.map(({text, href, className }) => (
                     <li key={text}>
                         <Typography
                             component="a"
@@ -249,7 +246,7 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                                 href="#hero"
                                 style={{ color: 'inherit', textDecoration: 'none', userSelect: 'none' }}
                             >
-                                Joey
+                                James
                             </a>
                         </Typography>
                     </Box>

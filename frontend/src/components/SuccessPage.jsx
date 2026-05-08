@@ -10,7 +10,7 @@ const SuccessPage = () => {
 
                     <div className="profile">
                         <a href="/"><img src="/img/icon.jpg" alt="Logo" className="img-fluid rounded-rectangle" /></a>
-                        <h1 className="text-light"><a href="/">Joey</a></h1>
+                        <h1 className="text-light"><a href="/">James</a></h1>
                         <div className="social-links mt-3 text-center">
                             <a href="/" target="_blank" rel="noopener noreferrer"><i className="bx bxl-linkedin"></i></a>
                             <a href="/"><i className="bx bx-envelope"></i></a>

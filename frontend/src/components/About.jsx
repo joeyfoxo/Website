@@ -16,7 +16,7 @@ function About() {
                             variant="h3"
                             component="h3"
                             gutterBottom
-                            sx={{ color: theme.palette.primary.main }}
+                            sx={{ color: theme.palette.textColors.span }}
                         >
                             Welcome!
                         </Typography>
@@ -25,18 +25,17 @@ function About() {
                             paragraph
                             sx={{ color: theme.palette.text.primary }}
                         >
-                            I’m Joey, a creative and driven software developer with over 7 years of programming experience,
-                            including 5 years working with the Bukkit/Spigot API. I have a strong passion for building engaging
-                            and high-quality digital experiences, with a particular interest in game development and full-stack web applications.
-                            While much of my work has been voluntary and alongside my academic studies, I’ve contributed meaningfully
-                            to collaborative teams and delivered production-level software for real-world users.
+                            I’m James, a creative and driven Software Engineer with over 7 years of programming experience and a
+                            First Class Honours degree in Computer Science (Software Engineering) from Keele University.
+                            My background combines deep expertise in Java-based game development with full-stack web engineering,
+                            specializing in delivering production-level software for platforms supporting millions of users.
                         </Typography>
 
                         <Typography
                             paragraph
                             sx={{ color: theme.palette.text.primary }}
                         >
-                            Professionally, I’ve developed large-scale Minecraft minigames at{' '}
+                            Professionally, I served as a Java Software Developer at{' '}
                             <Link
                                 href="https://www.cubecraft.net"
                                 target="_blank"
@@ -45,18 +44,18 @@ function About() {
                             >
                                 CubeCraft Games
                             </Link>{' '}
-                            (Ziax LTD), helping to support a peak of over 42,000 concurrent players.
-                            I’ve also worked as a full-stack engineer at Furcation LTD, using React, TypeScript, Django, and GCP
-                            to build scalable platforms serving 1,000+ users. I’m experienced in
-                            concurrent programming, Git, and working under pressure, and I thrive in high-performing, self-motivated teams.
+                            (Ziax LTD), where I engineered game logic and mechanics for a global network with 4M+ monthly active users.
+                            My work involved leveraging specialized Paper Spigot forks to facilitate cross-platform play for a peak
+                            of 42,000 concurrent players, while diagnosing and neutralizing high-priority performance leaks in a live environment.
                         </Typography>
 
                         <Typography
                             paragraph
                             sx={{ color: theme.palette.text.primary }}
                         >
-                            I’ve recently finished pursuing a BSc in Computer Science (Software Engineering) at Keele University,
-                            where I’m on track for First Class Honours. Alongside my studies, I’ve worked on personal projects such as{' '}
+                            I’ve also worked as a full-stack engineer at Furcation LTD, using React, TypeScript, and Django to build
+                            scalable platforms and PostgreSQL schemas designed for high-concurrency traffic. Beyond my professional roles,
+                            I’ve spearheaded complex personal projects like{' '}
                             <Link
                                 href="https://github.com/joeyfoxo/KeeleMC"
                                 target="_blank"
@@ -64,8 +63,8 @@ function About() {
                                 sx={{ color: theme.palette.textColors.link }}
                             >
                                 KeeleMC
-                            </Link>, a Minecraft server plugin suite designed as an all-in-one solution for a large-scale server,
-                            alongside other projects seen further below!
+                            </Link>, a modular Minecraft server architecture utilizing a Velocity proxy gateway and PostgreSQL.
+                            I thrive in high-performing teams that value technical ownership and scalable backend solutions.
                         </Typography>
                     </div>
                 </div>

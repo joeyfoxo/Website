@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import ModelViewer from "./util/ModelViewer.jsx";
 import '../assets/css/style.css';
 import Typography from '@mui/material/Typography';
@@ -7,7 +7,7 @@ import {useTheme} from "@mui/material";
 import RoundedButton from "./button/RoundedButton.jsx";
 
 function Projects() {
-    const [showModel, setShowModel] = useState(false);
+    const [, setShowModel] = useState(false);
     const [fadeProjects, setFadeProjects] = useState(false);
     const [expanded, setExpanded] = useState(false);
     const [countdown, setCountdown] = useState(null);
@@ -76,26 +76,18 @@ function Projects() {
                     {!expanded && (
                         <>
                             {/* KeeleMC project box */}
-                            <div className="project-box keelemc-box" onClick={handleZoom} style={{ cursor: 'pointer', position: 'relative' }}>
-                                <div className="interactive-label">Interactive: click to see 3D world</div>
-                                <img src="/img/projects/keelemc.png" className="img-fluid" alt="KeeleMC" />
-                                <div className="project-info">
-                                    <Typography variant="h4" component="h4">KeeleMC</Typography>
-                                    <Typography component="p" paragraph>
-                                        A paper server built from the ground up with custom java plugins including a dedicated core, hub and gamemode plugins.
-                                    </Typography>
-                                    <RoundedButton href="https://github.com/Joeyfoxo/keelemc">GitHub</RoundedButton>
-                                </div>
-                            </div>
 
                             <div className="project-box">
-                                <img src="/img/projects/shields.png" className="img-fluid" alt="Mo Shields" />
+                                <img src="/img/projects/diss.png" className="img-fluid" alt="Dissertation" />
                                 <div className="project-info">
-                                    <Typography variant="h4" component="h4">Mo Shields</Typography>
+                                    <Typography variant="h4" component="h4">Dissertation</Typography>
                                     <Typography component="p" paragraph>
-                                        moShield is a custom Minecraft plugin for Paper Spigot, written in Java. It adds multiple shields, each with unique abilities that activate when attacked or interacted with.
+                                        Analysing the use of obfuscation in malware to evade detection and trigger execution
                                     </Typography>
-                                    <RoundedButton href="https://github.com/joeyfoxo/moShield">GitHub</RoundedButton>
+                                    <Typography component="p" paragraph>
+                                        This dissertation examines how Windows malware uses obfuscation and evasion techniques to bypass EDR systems and antivirus software. The research highlights the need for adaptive detection strategies to counter increasingly obfuscated threats.
+                                    </Typography>
+                                    <RoundedButton href="/Dissertation.pdf">Dissertation</RoundedButton>
                                 </div>
                             </div>
 
@@ -121,6 +113,29 @@ function Projects() {
                                 </div>
                             </div>
 
+                            <div className="project-box keelemc-box" onClick={handleZoom} style={{ cursor: 'pointer', position: 'relative' }}>
+                                <div className="interactive-label">Interactive: click to see 3D world</div>
+                                <img src="/img/projects/keelemc.png" className="img-fluid" alt="KeeleMC" />
+                                <div className="project-info">
+                                    <Typography variant="h4" component="h4">KeeleMC</Typography>
+                                    <Typography component="p">
+                                        A paper server built from the ground up with custom java plugins including a dedicated core, hub and gamemode plugins.
+                                    </Typography>
+                                    <RoundedButton href="https://github.com/Joeyfoxo/keelemc">GitHub</RoundedButton>
+                                </div>
+                            </div>
+
+                            <div className="project-box">
+                                <img src="/img/projects/shields.png" className="img-fluid" alt="Mo Shields" />
+                                <div className="project-info">
+                                    <Typography variant="h4" component="h4">Mo Shields</Typography>
+                                    <Typography component="p" paragraph>
+                                        moShield is a custom Minecraft plugin for Paper Spigot, written in Java. It adds multiple shields, each with unique abilities that activate when attacked or interacted with.
+                                    </Typography>
+                                    <RoundedButton href="https://github.com/joeyfoxo/moShield">GitHub</RoundedButton>
+                                </div>
+                            </div>
+
                             <div className="project-box">
                                 <img src="/img/projects/rat.png" className="img-fluid" alt="Remote Access Trojan" />
                                 <div className="project-info">
@@ -129,20 +144,6 @@ function Projects() {
                                         A very early project written in C# which communicates to a server and transfers data. If continued I would have developed this into an example of a RAT.
                                     </Typography>
                                     <RoundedButton href="https://github.com/joeyfoxo/FxRAT">GitHub</RoundedButton>
-                                </div>
-                            </div>
-
-                            <div className="project-box">
-                                <img src="/img/projects/diss.png" className="img-fluid" alt="Dissertation" />
-                                <div className="project-info">
-                                    <Typography variant="h4" component="h4">Dissertation</Typography>
-                                    <Typography component="p" paragraph>
-                                        Analysing the use of obfuscation in malware to evade detection and trigger execution
-                                    </Typography>
-                                    <Typography component="p" paragraph>
-                                        This dissertation examines how Windows malware uses obfuscation and evasion techniques to bypass EDR systems and antivirus software. The research highlights the need for adaptive detection strategies to counter increasingly obfuscated threats.
-                                    </Typography>
-                                    <RoundedButton href="/Dissertation.pdf">Dissertation</RoundedButton>
                                 </div>
                             </div>
                         </>

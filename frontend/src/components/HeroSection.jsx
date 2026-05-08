@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import Typed from 'typed.js';
-import background from '/img/background.JPG';
+import background from '/img/backgroundext.jpg';
 import {Typography, useTheme} from "@mui/material"; // adjust path as needed
 
 function HeroSection() {
@@ -30,13 +30,14 @@ function HeroSection() {
         >
             <div className="hero-container" data-aos="fade-in">
                 <Typography                     sx={{
-                    color: theme.palette.textColors.primaryDark,
-                }}>Joey</Typography>
+                    color: theme.palette.textColors.span,
+                    fontWeight: 'bold',
+                }}>James</Typography>
                 <Typography
                     variant="h1"
                     component="h1"
                     sx={{
-                        color: theme.palette.textColors.primaryDark,
+                        color: theme.palette.textColors.span,
                         '& span': {
                             paddingBottom: '4px',
                             letterSpacing: '1px',

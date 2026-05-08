@@ -1,16 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import '../assets/css/style.css';
-import AOS from 'aos';
-import GLightbox from 'glightbox';
-import Isotope from 'isotope-layout';
-import Swiper from 'swiper';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import HeroSection from "./HeroSection.jsx";
-import About from "./About.jsx";
-import Facts from "./Facts.jsx";
-import Resume from "./Resume.jsx";
-import Projects from "./Projects.jsx";
-import ThemeToggle from "./util/ThemeToggle.jsx";
+// components/Index.jsx
+import React, { useEffect, useState } from "react";
 import {
     CssBaseline,
     GlobalStyles,
@@ -18,29 +7,41 @@ import {
     useTheme,
     Box,
 } from "@mui/material";
-import MenuIcon from '@mui/icons-material/Menu';
-import CloseIcon from '@mui/icons-material/Close';
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
+import AOS from "aos";
+import GLightbox from "glightbox";
+import Isotope from "isotope-layout";
+import Swiper from "swiper";
 import Header from "./Header.jsx";
+import HeroSection from "./HeroSection.jsx";
+import About from "./About.jsx";
+import Facts from "./Facts.jsx";
+import Resume from "./Resume.jsx";
+import Projects from "./Projects.jsx";
+import { Routes, Route } from "react-router-dom";
+import AuthPage from "./login/AuthPage.jsx";
 
-function Index() {
+function Home() {
+    // This is your original homepage content
     const [mobileNavOpen, setMobileNavOpen] = useState(false);
     const theme = useTheme();
 
     useEffect(() => {
         AOS.init({ duration: 1000 });
 
-        new Swiper('.swiper-container', {
+        new Swiper(".swiper-container", {
             loop: true,
             autoplay: { delay: 2500 },
         });
 
-        GLightbox({ selector: '.glightbox' });
+        GLightbox({ selector: ".glightbox" });
 
-        const isoGrid = document.querySelector('.isotope-container');
+        const isoGrid = document.querySelector(".isotope-container");
         if (isoGrid) {
             new Isotope(isoGrid, {
-                itemSelector: '.portfolio-item',
-                layoutMode: 'fitRows',
+                itemSelector: ".portfolio-item",
+                layoutMode: "fitRows",
             });
         }
     }, []);
@@ -54,9 +55,9 @@ function Index() {
             <CssBaseline />
             <GlobalStyles
                 styles={{
-                    html: { height: '100%' },
-                    body: { height: '100%', margin: 0, padding: 0 },
-                    '#root': { height: '100%' },
+                    html: { height: "100%" },
+                    body: { height: "100%", margin: 0, padding: 0 },
+                    "#root": { height: "100%" },
                 }}
             />
 
@@ -64,7 +65,7 @@ function Index() {
                 className="mobile-nav-toggle d-xl-none"
                 onClick={toggleMobileNav}
                 sx={{
-                    position: 'fixed',
+                    position: "fixed",
                     top: 15,
                     right: 15,
                     zIndex: 9999,
@@ -74,7 +75,6 @@ function Index() {
                 {mobileNavOpen ? <CloseIcon /> : <MenuIcon />}
             </IconButton>
 
-            {/* Pass mobileNavOpen state to Header so it can control drawer if needed */}
             <Header mobileNavOpen={mobileNavOpen} setMobileNavOpen={setMobileNavOpen} />
 
             <Box component="main" id="main">
@@ -88,4 +88,12 @@ function Index() {
     );
 }
 
-export default Index;
+export default function Index() {
+    return (
+        <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/auth" element={<AuthPage />} />
+            {/* You can add more routes here */}
+        </Routes>
+    );
+}
