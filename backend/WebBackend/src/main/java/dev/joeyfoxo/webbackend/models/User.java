@@ -19,4 +19,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserRole role; // Joey, Bot, Admin, Dev
+
+    // Inside User.java
+    private String email;
 }

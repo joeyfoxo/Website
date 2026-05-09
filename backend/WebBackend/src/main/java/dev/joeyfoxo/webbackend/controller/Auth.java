@@ -2,11 +2,11 @@ package dev.joeyfoxo.webbackend.controller;
 
 import dev.joeyfoxo.webbackend.models.User;
 import dev.joeyfoxo.webbackend.models.UserRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,11 +20,28 @@ public class Auth {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @GetMapping("/login")
+    public ResponseEntity<?> login(Authentication authentication) {
+        // If the code reaches here, Spring Security has already
+        // verified the username and password against the database.
+        return ResponseEntity.ok(authentication.getPrincipal());
+    }
+
     @PostMapping("/register")
-    public String register(@RequestBody User user) {
-        // Hash the password before saving to PostgreSQL
+    public ResponseEntity<String> register(@RequestBody User user) {
+        // Validation: Only allow @joeyfox.dev
+        if (user.getEmail() == null || !user.getEmail().endsWith("@joeyfox.dev")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Sorry you cannot register.");
+        }
+
+        // Check if username already exists to prevent JPA errors
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().body("Username is already taken.");
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        return "User registered successfully!";
+        return ResponseEntity.ok("User registered successfully!");
     }
 }
