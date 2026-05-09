@@ -1,15 +1,12 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import fs from 'fs';
 
-// https://vite.dev/config/
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
-    https: {
-      key: fs.readFileSync('ssl/key.pem'),
-      cert: fs.readFileSync('ssl/cert.pem'),
-    },
-    host: true, // required for network access
+    port: 5173,
+    https: false, // Explicitly disable or just remove the https block
+    host: true,
   },
 })
