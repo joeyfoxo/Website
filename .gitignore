@@ -1,0 +1,17 @@
+# Secrets
+.env
+
+# Java/Maven
+target/
+*.class
+*.jar
+.mvn/
+
+# Node/React
+node_modules/
+dist/
+.eslintcache
+
+# OS Files
+.DS_Store
+Thumbs.db

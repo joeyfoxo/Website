@@ -6,7 +6,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "boxicons/css/boxicons.min.css";
 import "aos/dist/aos.css";
 import "swiper/swiper-bundle.css";
-import Index from "./components/Index.jsx";
+import index from "./components/index.jsx";
 import { ThemeContextProvider } from "./components/util/ThemeContext.jsx";
 import {BrowserRouter} from "react-router-dom";
 
