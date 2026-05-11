@@ -1,10 +1,42 @@
 services:
+  # --- The Database ---
   db:
     image: postgres:15
+    container_name: portfolio-db
     restart: always
     environment:
-      POSTGRES_USER: joey
-      POSTGRES_PASSWORD: password123
       POSTGRES_DB: portfolio_db
+      POSTGRES_USER: ${DB_USER}       # Reads from .env
+      POSTGRES_PASSWORD: ${DB_PASSWORD} # Reads from .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # --- The Spring Boot Backend ---
+  backend:
+    build: ./backend  # Looks for the Dockerfile in the backend folder
+    container_name: portfolio-api
+    restart: always
+    environment:
+      # We tell Spring Boot how to talk to the 'db' service above
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/portfolio_db
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      - db
+
+  # --- The React Frontend & Nginx ---
+  nginx:
+    build: ./frontend # Looks for the Dockerfile in the frontend folder
+    container_name: portfolio-nginx
+    restart: always
     ports:
-      - "5432:5432"
+      - "80:80"       # Maps your server's port 80 to the container
+    volumes:
+      # Mounts your custom config from the host to the container
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - backend
+
+# Keeps your database data safe even if the containers are deleted
+volumes:
+  postgres_data:
