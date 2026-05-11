@@ -19,13 +19,14 @@ public class UserQueryDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
+        // Now searching the 'username' column for "Joey"
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
         return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUsername())
-                .password(user.getPassword()) // This is the HASHED password
-                .roles(user.getRole().name()) // Joey, Admin, etc.
+                .username(user.getUsername()) // Principal is now the username
+                .password(user.getPassword())
+                .roles(user.getRole().name())
                 .build();
     }
 }
