@@ -15,10 +15,12 @@ import {
     Work as WorkIcon,
     Email as EmailIcon,
     Menu as MenuIcon,
+    Settings as SettingsIcon,
 } from '@mui/icons-material';
 import ThemeToggle from './util/ThemeToggle';
 import { ColorModeContext } from "./util/ThemeContext.jsx";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "./login/AuthContext.jsx"; //
 
 const navItems = [
     { icon: <HomeIcon />, text: 'Home', href: '#hero', className: 'bx bx-home' },
@@ -30,8 +32,12 @@ const navItems = [
 export default function Header({ mobileNavOpen, setMobileNavOpen }) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const navigate = useNavigate();
 
-    const {setHue } = useContext(ColorModeContext);
+    // Pull the user object to swap the name and icon
+    const { user } = useAuth();
+
+    const { setHue } = useContext(ColorModeContext);
 
     const hues = ['red', 'yellow', 'green', 'blue'];
     const [localHueIndex, setLocalHueIndex] = useState(0);
@@ -56,6 +62,7 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
         transition: 'color 0.3s, border-color 0.3s',
         cursor: 'pointer',
         userSelect: 'none',
+        textDecoration: 'none'
     });
 
     const handleHover = (theme, isEntering) => (e) => {
@@ -68,30 +75,22 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
             : theme.palette.text.primary;
     };
 
-    // Updated ThemeChange to toggle mode
-    function ThemeChange(e) {
-        e.preventDefault();
-    }
-
-    const navigate = useNavigate();
-
     const goToAuth = () => {
-        navigate("/auth");
+        // Redirect to account if session exists, otherwise to login
+        navigate(user ? "/account" : "/auth");
     };
 
-    // Get current hue's primary main color from theme
-    // fallback to theme.palette.primary.main if missing
     const currentHueColor =
         theme.palette.primary?.main || theme.palette.text.primary;
 
     const ProfileSection = (
         <Box className="profile" sx={{ textAlign: 'center' }}>
-            <img src="/img/logo.png" alt="Logo" className="img-fluid rounded-rectangle" />
             <Typography
                 variant="h3"
                 sx={{ color: theme.palette.text.primary, mt: 1, fontWeight: 600 }}
             >
-                James
+                {/* Big text populated with username if available */}
+                {user ? user.username : "James"}
             </Typography>
 
             <Box
@@ -112,7 +111,7 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                     <EmailIcon />
                 </a>
                 <Box
-                    onClick={ThemeChange}
+                    onClick={(e) => e.preventDefault()}
                     style={circleButtonStyle(theme)}
                     onMouseEnter={handleHover(theme, true)}
                     onMouseLeave={handleHover(theme, false)}
@@ -129,11 +128,12 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                     onMouseLeave={handleHover(theme, false)}
                     role="button"
                     tabIndex={0}
+                    title={user ? "My Account" : "Login"}
                 >
-                    <PersonIcon/>
+                    {/* Icon swaps to Settings when logged in */}
+                    {user ? <SettingsIcon/> : <PersonIcon/>}
                 </Box>
 
-                {/* Hue Cycle Button */}
                 <Box
                     onClick={handleHueCycle}
                     sx={{
@@ -145,7 +145,6 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        // Background is current hue primary color
                         backgroundColor: currentHueColor,
                         border: `1.5px solid ${currentHueColor}`,
                         transition: 'background-color 0.3s, color 0.3s, border-color 0.3s',
@@ -154,7 +153,6 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                     onMouseLeave={handleHover(theme, false)}
                     role="button"
                     tabIndex={0}
-                    title={`Switch Hue: ${hues[(localHueIndex + 1) % hues.length]}`}
                 >
                     <Typography
                         sx={{
@@ -208,108 +206,105 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
         </Box>
     );
 
-    if (isMobile) {
-        return (
-            <>
+    return (
+        <>
+            {isMobile ? (
+                <>
+                    <Box
+                        component="header"
+                        id="header"
+                        className="pb-4"
+                        sx={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            zIndex: 1300,
+                            bgcolor: theme.palette.background.paper,
+                            transition: 'background-color 1s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            px: 2,
+                            height: 56,
+                            borderBottom: `1px solid ${theme.palette.divider}`,
+                        }}
+                    >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <img
+                                src="/img/logo.png"
+                                alt="Logo"
+                                style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }}
+                            />
+                            <Typography
+                                variant="h6"
+                                component="h1"
+                                sx={{ color: theme.palette.primary.main, fontWeight: 600 }}
+                            >
+                                <a
+                                    href="#hero"
+                                    style={{ color: 'inherit', textDecoration: 'none', userSelect: 'none' }}
+                                >
+                                    {user ? user.username : "James"}
+                                </a>
+                            </Typography>
+                        </Box>
+
+                        <IconButton
+                            aria-label="menu"
+                            onClick={toggleDrawer(true)}
+                            sx={{ color: theme.palette.primary.main }}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                    </Box>
+
+                    <Drawer
+                        anchor="left"
+                        open={mobileNavOpen}
+                        onClose={toggleDrawer(false)}
+                        ModalProps={{ keepMounted: true }}
+                        PaperProps={{
+                            sx: {
+                                width: 280,
+                                bgcolor: theme.palette.background.default,
+                                color: theme.palette.text.primary,
+                                transition: 'background-color 1s ease',
+                                pt: 4,
+                            },
+                        }}
+                    >
+                        {ProfileSection}
+                        <Divider sx={{ my: 2 }} />
+                        {NavLinks}
+                    </Drawer>
+                </>
+            ) : (
                 <Box
-                    component="header"
-                    id="header"
-                    className="pb-4"
+                    component="aside"
                     sx={{
                         position: 'fixed',
                         top: 0,
                         left: 0,
-                        right: 0,
-                        zIndex: 1300,
+                        width: 280,
+                        height: '100vh',
                         bgcolor: theme.palette.background.paper,
                         transition: 'background-color 1s ease',
+                        borderRight: `1px solid ${theme.palette.divider}`,
                         display: 'flex',
+                        flexDirection: 'column',
                         alignItems: 'center',
-                        justifyContent: 'space-between',
+                        py: 4,
                         px: 2,
-                        height: 56,
-                        borderBottom: `1px solid ${theme.palette.divider}`,
-                    }}
-                >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <img
-                            src="/img/logo.png"
-                            alt="Logo"
-                            style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }}
-                        />
-                        <Typography
-                            variant="h6"
-                            component="h1"
-                            sx={{ color: theme.palette.primary.main, fontWeight: 600 }}
-                        >
-                            <a
-                                href="#hero"
-                                style={{ color: 'inherit', textDecoration: 'none', userSelect: 'none' }}
-                            >
-                                James
-                            </a>
-                        </Typography>
-                    </Box>
-
-                    <IconButton
-                        aria-label="menu"
-                        onClick={toggleDrawer(true)}
-                        sx={{ color: theme.palette.primary.main }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                </Box>
-
-                <Drawer
-                    anchor="left"
-                    open={mobileNavOpen}
-                    onClose={toggleDrawer(false)}
-                    ModalProps={{ keepMounted: true }}
-                    PaperProps={{
-                        sx: {
-                            width: 280,
-                            bgcolor: theme.palette.background.default,
-                            color: theme.palette.text.primary,
-                            transition: 'background-color 1s ease',
-                            pt: 4,
-                        },
+                        overflowY: 'auto',
+                        zIndex: 1200,
                     }}
                 >
                     {ProfileSection}
-                    <Divider sx={{ my: 2 }} />
+                    <Divider sx={{ width: '100%', mt: 2, borderBottomWidth: '3px' }} />
                     {NavLinks}
-                </Drawer>
-
-                <Box sx={{ height: 56 }} />
-            </>
-        );
-    }
-
-    return (
-        <Box
-            component="aside"
-            sx={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: 280,
-                height: '100vh',
-                bgcolor: theme.palette.background.paper,
-                transition: 'background-color 1s ease',
-                borderRight: `1px solid ${theme.palette.divider}`,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                py: 4,
-                px: 2,
-                overflowY: 'auto',
-                zIndex: 1200,
-            }}
-            className="pb-4"
-        >
-            {ProfileSection}
-            <Divider sx={{ width: '100%', mt: 2, borderBottomWidth: '3px' }} />
-            {NavLinks}
-        </Box>
+                </Box>
+            )}
+        </>
     );
 }

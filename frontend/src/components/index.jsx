@@ -19,8 +19,10 @@ import About from "./About.jsx";
 import Facts from "./Facts.jsx";
 import Resume from "./Resume.jsx";
 import Projects from "./Projects.jsx";
-import { Routes, Route } from "react-router-dom";
+import {Routes, Route, Navigate} from "react-router-dom";
 import AuthPage from "./login/AuthPage.jsx";
+import {AuthProvider, useAuth} from "./login/AuthContext.jsx";
+import ProfilePage from "./login/ProfilePage.jsx";
 
 function Home() {
     // This is your original homepage content
@@ -88,12 +90,37 @@ function Home() {
     );
 }
 
+/**
+ * A simple wrapper to protect routes that require a login.
+ * If the user isn't logged in, it sends them to the /auth page.
+ */
+const ProtectedRoute = ({ children }) => {
+    const { user, loading } = useAuth();
+
+    if (loading) return null; // Wait for the session check to finish
+    return user ? children : <Navigate to="/auth" />;
+};
+
 export default function Index() {
     return (
-        <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/auth" element={<AuthPage />} />
-            {/* You can add more routes here */}
-        </Routes>
+        <AuthProvider>
+            <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<Home />} />
+                <Route path="/auth" element={<AuthPage />} />
+
+                {/* Private/Protected Routes */}
+                <Route
+                    path="/account"
+                    element={
+                        <ProtectedRoute>
+                            <ProfilePage />
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Add more routes inside the Provider as needed */}
+            </Routes>
+        </AuthProvider>
     );
 }

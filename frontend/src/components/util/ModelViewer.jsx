@@ -3,7 +3,7 @@ import { Canvas, useLoader } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
-import { a, useSpring } from '@react-spring/three';
+import { useSpring } from '@react-spring/three';
 
 function MinecraftModel() {
     const materials = useLoader(MTLLoader, '/3D/Hub/ExportWorld.mtl');

@@ -118,17 +118,6 @@ function Resume() {
                                 'Physics'
                             ])}
                         </ThemedResumeItem>
-
-                        <Typography sx={{ color: theme.palette.primary.main, mt: 4 }} component="h3" className="resume-title">Key Skills</Typography>
-                        <ThemedResumeItem className="resume-item">
-                            <Typography variant="h6" component="h4">Technical Expertise</Typography>
-                            {renderList([
-                                'Languages: Java, TypeScript, JavaScript, Python, C#, C++, Swift',
-                                'Frameworks: React, Material UI, Django, Bukkit/Spigot, Shopify (Liquid)',
-                                'Tools: Git, GitHub, VS Code, GitHub Copilot, Gemini, REST APIs, CI/CD, Jira, Linux',
-                                'Strengths: Scalable backend, concurrency, OOP, performance tuning, production debugging'
-                            ])}
-                        </ThemedResumeItem>
                     </div>
 
                     <div className="col-lg-6" data-aos="fade-up" data-aos-delay="100">
