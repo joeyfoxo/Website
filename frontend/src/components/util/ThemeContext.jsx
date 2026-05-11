@@ -225,7 +225,7 @@ export const ThemeContextProvider = ({ children }) => {
                     },
                 },
             }),
-        [mode, hue]
+        [mode, currentHue, hue]
     );
 
     return (
@@ -234,6 +234,17 @@ export const ThemeContextProvider = ({ children }) => {
                 <CssBaseline />
                 <GlobalStyles
                     styles={{
+
+                        '::selection': {
+                            // Using a 40% transparent version of your primary color for a modern look
+                            backgroundColor: `${theme.palette.primary.main}66`,
+                            color: theme.palette.text.primary,
+                        },
+                        '::-moz-selection': {
+                            backgroundColor: `${theme.palette.primary.main}66`,
+                            color: theme.palette.text.primary,
+                        },
+
                         a: {
                             color: theme.palette.textColors.link,
                             fontWeight: 'bold',
