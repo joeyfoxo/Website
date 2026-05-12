@@ -97,10 +97,15 @@ function Home() {
  * If the user isn't logged in, it sends them to the /auth page.
  */
 const ProtectedRoute = ({ children }) => {
-    const { user, loading } = useAuth();
+    const { user, loading } = useAuth(); // Ensure your context provides a 'loading' state
 
-    if (loading) return null; // Wait for the session check to finish
-    return user ? children : <Navigate to="/auth" />;
+    if (loading) return <div>Checking session...</div>;
+
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'JOEY')) {
+        return <Navigate to="/" replace />;
+    }
+
+    return children;
 };
 
 export default function Index() {
