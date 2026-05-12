@@ -29,4 +29,5 @@ public class UserQueryDetailsService implements UserDetailsService {
                 .roles(user.getRole().name())
                 .build();
     }
+
 }
