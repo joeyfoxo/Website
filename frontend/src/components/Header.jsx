@@ -49,7 +49,7 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
         currentNavItems.push({
             icon: <AdminIcon />,
             text: 'Admin Panel',
-            href: '/admin/users',
+            href: '/admin',
             className: 'bx bx-shield-quarter',
             isRoute: true // Flag to use navigate() instead of anchor scroll
         });

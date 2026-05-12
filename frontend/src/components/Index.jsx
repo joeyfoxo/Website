@@ -23,6 +23,8 @@ import {Routes, Route, Navigate} from "react-router-dom";
 import AuthPage from "./login/AuthPage.jsx";
 import {AuthProvider, useAuth} from "./login/AuthContext.jsx";
 import ProfilePage from "./login/ProfilePage.jsx";
+import UserManagement from "./admin/UserManagement.jsx";
+import AdminPanel from "./admin/AdminPanel.jsx";
 
 function Home() {
     // This is your original homepage content
@@ -118,6 +120,9 @@ export default function Index() {
                         </ProtectedRoute>
                     }
                 />
+                <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>}>
+                    <Route path="users" element={<UserManagement />} />
+                </Route>
 
                 {/* Add more routes inside the Provider as needed */}
             </Routes>
