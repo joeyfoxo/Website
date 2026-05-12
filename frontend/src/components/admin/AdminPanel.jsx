@@ -14,6 +14,9 @@ const AdminPanel = ({ currentUser }) => {
     const hasAccess = currentUser?.role === 'ADMIN' || currentUser?.role === 'JOEY';
     if (!hasAccess) return <Box sx={{ p: 4 }}><Typography color="error">Access Denied</Typography></Box>;
 
+    console.log(currentUser?.role);
+    console.log(currentUser?.username);
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, p: 4 }}>
             <Box>
