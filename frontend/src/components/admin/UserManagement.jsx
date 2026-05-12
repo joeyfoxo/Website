@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    Select, MenuItem, Alert, CircularProgress, Chip, Box
+    Select, MenuItem, Alert, CircularProgress, Chip, Box, Typography
 } from '@mui/material';
-import { fetchAllUsers, updateUserRole } from '../api';
+import { fetchAllUsers, updateUserRole } from '../api/api.js';
 
 const UserManagement = ({ currentUser }) => {
     const [users, setUsers] = useState([]);
