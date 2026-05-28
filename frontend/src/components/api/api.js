@@ -55,3 +55,24 @@ export async function logout() {
         handleError(error);
     }
 }
+
+
+    export async function fetchAllUsers() {
+        try {
+            // This hits the /admin/users endpoint you just created in Java
+            const response = await api.get("/admin/users");
+            return response.data;
+        } catch (error) {
+            // You might want to add a 403 specific error here for "Admin only"
+            handleError(error);
+        }
+}
+
+export async function updateUserRole(email, newRole) {
+    try {
+        const response = await api.put(`/admin/users/${email}/role`, { role: newRole });
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+}

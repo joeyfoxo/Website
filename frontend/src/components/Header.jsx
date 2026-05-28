@@ -16,11 +16,12 @@ import {
     Email as EmailIcon,
     Menu as MenuIcon,
     Settings as SettingsIcon,
+    AdminPanelSettings as AdminIcon, // Added for Admin access
 } from '@mui/icons-material';
 import ThemeToggle from './util/ThemeToggle';
 import { ColorModeContext } from "./util/ThemeContext.jsx";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "./login/AuthContext.jsx"; //
+import { useAuth } from "./login/AuthContext.jsx";
 
 const navItems = [
     { icon: <HomeIcon />, text: 'Home', href: '#hero', className: 'bx bx-home' },
@@ -34,13 +35,25 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const navigate = useNavigate();
 
-    // Pull the user object to swap the name and icon
     const { user } = useAuth();
-
     const { setHue } = useContext(ColorModeContext);
 
     const hues = ['red', 'yellow', 'green', 'blue'];
     const [localHueIndex, setLocalHueIndex] = useState(0);
+
+    // Build dynamic navigation items based on role
+    const currentNavItems = [...navItems];
+    const isAdmin = user?.role === 'ADMIN' || user?.role === 'JOEY';
+
+    if (isAdmin) {
+        currentNavItems.push({
+            icon: <AdminIcon />,
+            text: 'Admin Panel',
+            href: '/admin',
+            className: 'bx bx-shield-quarter',
+            isRoute: true // Flag to use navigate() instead of anchor scroll
+        });
+    }
 
     const handleHueCycle = () => {
         const nextIndex = (localHueIndex + 1) % hues.length;
@@ -76,7 +89,6 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
     };
 
     const goToAuth = () => {
-        // Redirect to account if session exists, otherwise to login
         navigate(user ? "/account" : "/auth");
     };
 
@@ -89,7 +101,6 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                 variant="h3"
                 sx={{ color: theme.palette.text.primary, mt: 1, fontWeight: 600 }}
             >
-                {/* Big text populated with username if available */}
                 {user ? user.username : "James"}
             </Typography>
 
@@ -130,7 +141,6 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                     tabIndex={0}
                     title={user ? "My Account" : "Login"}
                 >
-                    {/* Icon swaps to Settings when logged in */}
                     {user ? <SettingsIcon/> : <PersonIcon/>}
                 </Box>
 
@@ -171,11 +181,11 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
     const NavLinks = (
         <Box component="nav" id="navbar" className={`nav-menu navbar`}>
             <ul>
-                {navItems.map(({text, href, className }) => (
+                {currentNavItems.map(({text, href, className, isRoute }) => (
                     <li key={text}>
                         <Typography
                             component="a"
-                            href={href}
+                            href={isRoute ? undefined : href}
                             className="nav-link scrollto"
                             sx={{
                                 display: 'flex',
@@ -184,11 +194,16 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                                 fontWeight: 'bold',
                                 textDecoration: 'none',
                                 transition: 'color 0.3s',
+                                cursor: 'pointer',
                                 '&:hover': {
                                     color: theme.palette.textColors.link,
                                 },
                             }}
-                            onClick={() => {
+                            onClick={(e) => {
+                                if (isRoute) {
+                                    e.preventDefault();
+                                    navigate(href);
+                                }
                                 if (isMobile) setMobileNavOpen(false);
                             }}
                         >
