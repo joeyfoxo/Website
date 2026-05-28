@@ -56,6 +56,17 @@ export async function logout() {
     }
 }
 
+export async function getProfile() {
+    try {
+        const response = await api.get("/profile");
+        console.log(response.data);
+        return response.data;
+    }
+    catch (error) {
+        handleError(error);
+    }
+}
+
 
     export async function fetchAllUsers() {
         try {

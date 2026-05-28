@@ -1,5 +1,6 @@
 package dev.joeyfoxo.webbackend.controller;
 
+import dev.joeyfoxo.webbackend.dto.UserResponse;
 import dev.joeyfoxo.webbackend.models.User;
 import dev.joeyfoxo.webbackend.models.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,8 +11,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +57,16 @@ public class Auth {
             SecurityContextHolder.setContext(context);
             securityContextRepository.saveContext(context, request, response);
 
-            return ResponseEntity.ok("Successfully logged in");
+            org.springframework.security.core.userdetails.User userDetails =
+                    (org.springframework.security.core.userdetails.User) authResult.getPrincipal();
+
+
+            User user = userRepository.findByUsername(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            UserResponse userResponse = new UserResponse(user);
+            return ResponseEntity.ok(userResponse);
+
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
@@ -86,5 +98,19 @@ public class Auth {
         SecurityContextHolder.clearContext();
         securityContextRepository.saveContext(SecurityContextHolder.createEmptyContext(), request, response);
         return ResponseEntity.ok("Logged out successfully");
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User user = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserResponse userResponse = new UserResponse(user);
+
+        return ResponseEntity.ok(userResponse);
     }
 }

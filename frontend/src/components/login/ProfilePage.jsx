@@ -6,7 +6,7 @@ import {
 } from "@mui/material";
 import { ArrowBackIosNew, Logout, Email, Security } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
-import { fetchUserProfile, logout } from "../api/api.js";
+import { getProfile, logout } from "../api/api.js";
 import { useAuth } from "./AuthContext.jsx";
 
 const pageVariants = {
@@ -27,7 +27,7 @@ export default function ProfilePage() {
     useEffect(() => {
         const loadProfile = async () => {
             try {
-                const userData = await fetchUserProfile();
+                const userData = await getProfile();
                 // This updates the global state so your Sidebar/Header also updates
                 setUser(userData);
             } catch (err) {

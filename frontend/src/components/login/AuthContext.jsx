@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
+import {getProfile} from "../api/api.js";
 
 const AuthContext = createContext();
 
@@ -12,7 +13,7 @@ export const AuthProvider = ({ children }) => {
         if (hasChecked.current) return; // Stop the loop if we've already checked
 
         try {
-            const userData = await fetchUserProfile();
+            const userData = await getProfile();
             setUser(userData);
         } catch (err) {
             setUser(null);

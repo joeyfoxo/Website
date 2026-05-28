@@ -101,6 +101,9 @@ const ProtectedRoute = ({ children }) => {
 
     if (loading) return <div>Checking session...</div>;
 
+    console.log("USER FULL: " + user)
+    console.log("USER ROLE: " + user.role)
+
     if (!user || (user.role !== 'ADMIN' && user.role !== 'JOEY')) {
         return <Navigate to="/" replace />;
     }
