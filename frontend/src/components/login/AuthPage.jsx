@@ -52,7 +52,7 @@ export default function AuthPage() {
                 setUser(userData);
                 navigate("/account");
             } else {
-                const data = await register(form.username, form.password, form.email);
+                await register(form.username, form.password, form.email);
                 setFeedback({ type: "success", message: "Registration successful! Please sign in." });
                 setIsLogin(true);
                 // Reset form fields except username for convenience

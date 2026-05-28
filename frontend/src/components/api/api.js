@@ -47,15 +47,6 @@ export async function register(username, password, email) {
     }
 }
 
-export async function fetchUserProfile() {
-    try {
-        const response = await api.get("/profile");
-        return response.data;
-    } catch (error) {
-        handleError(error);
-    }
-}
-
 export async function logout() {
     try {
         const response = await api.post("/logout");

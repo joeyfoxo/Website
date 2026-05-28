@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class Auth {
 
     private final UserRepository userRepository;
@@ -79,18 +79,6 @@ public class Auth {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return ResponseEntity.ok("User registered successfully!");
-    }
-
-    @GetMapping("/profile")
-    public ResponseEntity<?> getCurrentUser(Principal principal) {
-        if (principal == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
-        }
-
-        // Search by Principal Name (which is the username)
-        return userRepository.findByUsername(principal.getName())
-                .map(user -> ResponseEntity.ok((Object) user))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found"));
     }
 
     @PostMapping("/logout")

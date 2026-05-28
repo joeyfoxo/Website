@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
-import { fetchUserProfile } from "../api/api";
 
 const AuthContext = createContext();
 

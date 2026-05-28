@@ -1,42 +1,48 @@
 services:
-  # --- The Database ---
+  # The Database: Creates an isolated PostgreSQL instance for local development
   db:
     image: postgres:15
     container_name: portfolio-db
     restart: always
+    ports:
+      - "5433:5432"
     environment:
       POSTGRES_DB: portfolio_db
-      POSTGRES_USER: ${DB_USER}       # Reads from .env
-      POSTGRES_PASSWORD: ${DB_PASSWORD} # Reads from .env
+      # DB_USER and DB_PASSWORD are pulled from your local .env file
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
+      # Persists data to your local machine so it survives container restarts
       - postgres_data:/var/lib/postgresql/data
 
-  # --- The Spring Boot Backend ---
+  # The Backend: The Spring Boot API that connects to the 'db' service
   backend:
-    build: ./backend  # Looks for the Dockerfile in the backend folder
+    build: ./backend
     container_name: portfolio-api
     restart: always
     environment:
-      # We tell Spring Boot how to talk to the 'db' service above
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/portfolio_db
+      # Tells Spring how to connect to the 'db' container
+      SPRING_DATASOURCE_URL: ${DB_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
     depends_on:
+      # Ensures the database is ready before starting the backend
       - db
 
-  # --- The React Frontend & Nginx ---
+  # The Frontend: Serves your React app via Nginx
   nginx:
-    build: ./frontend # Looks for the Dockerfile in the frontend folder
+    build: ./frontend
     container_name: portfolio-nginx
     restart: always
     ports:
-      - "80:80"       # Maps your server's port 80 to the container
+      # Maps local machine port 8081 to the container's port 80
+      - "8081:80"
     volumes:
-      # Mounts your custom config from the host to the container
+      # Syncs your custom Nginx configuration file to the server
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
     depends_on:
       - backend
 
-# Keeps your database data safe even if the containers are deleted
+# Persistent storage definition
 volumes:
   postgres_data:
