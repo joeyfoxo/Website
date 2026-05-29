@@ -99,11 +99,8 @@ function Home() {
 const ProtectedRoute = ({ children }) => {
     const { user, loading } = useAuth(); // Ensure your context provides a 'loading' state
 
+
     if (loading) return <div>Checking session...</div>;
-
-    console.log("USER FULL: " + user)
-    console.log("USER ROLE: " + user.role)
-
     if (!user || (user.role !== 'ADMIN' && user.role !== 'JOEY')) {
         return <Navigate to="/" replace />;
     }
@@ -123,9 +120,7 @@ export default function Index() {
                 <Route
                     path="/account"
                     element={
-                        <ProtectedRoute>
-                            <ProfilePage />
-                        </ProtectedRoute>
+                    <ProfilePage />
                     }
                 />
                 <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>}>

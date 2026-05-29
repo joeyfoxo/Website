@@ -2,20 +2,27 @@ import React, { useState } from 'react';
 import { Box, Tabs, Tab, Paper, Typography, Divider } from '@mui/material';
 import { People as PeopleIcon, Dashboard as DashIcon, Security as SecurityIcon } from '@mui/icons-material';
 import UserManagement from './UserManagement';
+import { useAuth } from '../login/AuthContext.jsx'; // Adjust path if needed
 
-const AdminPanel = ({ currentUser }) => {
+const AdminPanel = () => {
     const [activeTab, setActiveTab] = useState(0);
+
+    // 1. Pull out 'user' directly. No more confusing aliases!
+    const { user } = useAuth();
 
     const handleTabChange = (event, newValue) => {
         setActiveTab(newValue);
     };
 
-    // Access check at the entry point
-    const hasAccess = currentUser?.role === 'ADMIN' || currentUser?.role === 'JOEY';
-    if (!hasAccess) return <Box sx={{ p: 4 }}><Typography color="error">Access Denied</Typography></Box>;
-
-    console.log(currentUser?.role);
-    console.log(currentUser?.username);
+    // 2. Updated access check to use 'user'
+    const hasAccess = user?.role === 'ADMIN' || user?.role === 'JOEY';
+    if (!hasAccess) {
+        return (
+            <Box sx={{ p: 4 }}>
+                <Typography color="error">Access Denied</Typography>
+            </Box>
+        );
+    }
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, p: 4 }}>
@@ -24,7 +31,8 @@ const AdminPanel = ({ currentUser }) => {
                     System Administration
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                    Logged in as: {currentUser.username} ({currentUser.role})
+                    {/* 3. Updated display names */}
+                    Logged in as: {user.username} ({user.role})
                 </Typography>
             </Box>
 
@@ -44,7 +52,8 @@ const AdminPanel = ({ currentUser }) => {
                 <Divider />
 
                 <Box sx={{ p: 2 }}>
-                    {activeTab === 0 && <UserManagement currentUser={currentUser} />}
+                    {/* 4. Pass 'user' down to UserManagement component */}
+                    {activeTab === 0 && <UserManagement currentUser={user} />}
                     {activeTab === 1 && <Typography sx={{ p: 4 }}>Server stats coming soon...</Typography>}
                     {activeTab === 2 && <Typography sx={{ p: 4 }}>Audit logs coming soon...</Typography>}
                 </Box>

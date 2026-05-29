@@ -61,16 +61,21 @@ const UserManagement = ({ currentUser }) => {
                                     />
                                 </TableCell>
                                 <TableCell align="right">
-                                    <Select
-                                        value={user.role}
-                                        size="small"
-                                        disabled={user.email === currentUser.email}
-                                        onChange={(e) => handleRoleChange(user.email, e.target.value)}
-                                    >
-                                        <MenuItem value="USER">USER</MenuItem>
-                                        <MenuItem value="ADMIN">ADMIN</MenuItem>
-                                        <MenuItem value="JOEY">JOEY</MenuItem>
-                                    </Select>
+                                    <TableCell align="right">
+                                        <Select
+                                            value={user.role}
+                                            size="small"
+                                            disabled={user.email === currentUser.email}
+                                            onChange={(e) => handleRoleChange(user.email, e.target.value)}
+                                        >
+                                            <MenuItem value="AUTHENTICATED">AUTHENTICATED</MenuItem>
+                                            <MenuItem value="TRUSTED">TRUSTED</MenuItem>
+                                            <MenuItem value="DEV">DEV</MenuItem>
+                                            <MenuItem value="BOT">BOT</MenuItem>
+                                            <MenuItem value="ADMIN">ADMIN</MenuItem>
+                                            <MenuItem value="JOEY">JOEY</MenuItem>
+                                        </Select>
+                                    </TableCell>
                                 </TableCell>
                             </TableRow>
                         ))}

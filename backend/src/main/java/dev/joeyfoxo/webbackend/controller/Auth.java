@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
+import static dev.joeyfoxo.webbackend.utils.Utils.capitalizeUsername;
+
 @RestController
 @RequestMapping("/api/auth")
 public class Auth {
@@ -40,13 +42,42 @@ public class Auth {
         this.securityContextRepository = securityContextRepository;
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestBody User user) {
+        if (user.getEmail() == null || !user.getEmail().endsWith("@joeyfox.dev")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Sorry, you cannot register.");
+        }
+
+        // Check ID (Email)
+        if (userRepository.existsById(user.getEmail())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email is already taken.");
+        }
+
+        // 1. Format the username right away (e.g., "joey" becomes "Joey")
+        String formattedUsername = capitalizeUsername(user.getUsername());
+        user.setUsername(formattedUsername);
+
+        // 2. Run the duplicate check against the formatted username
+        if (userRepository.findByUsername(formattedUsername).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username is already taken.");
+        }
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+        return ResponseEntity.ok("User registered successfully!");
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest,
                                    HttpServletRequest request,
                                    HttpServletResponse response) {
         try {
+            // 1. Format the login username input before authenticating
+            String formattedUsername = capitalizeUsername(loginRequest.getUsername());
+
+            // 2. Pass the standardized username to Spring Security
             Authentication authRequest = UsernamePasswordAuthenticationToken.unauthenticated(
-                    loginRequest.getUsername(), loginRequest.getPassword());
+                    formattedUsername, loginRequest.getPassword());
 
             // Authenticate user
             Authentication authResult = authenticationManager.authenticate(authRequest);
@@ -60,7 +91,6 @@ public class Auth {
             org.springframework.security.core.userdetails.User userDetails =
                     (org.springframework.security.core.userdetails.User) authResult.getPrincipal();
 
-
             User user = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -70,27 +100,6 @@ public class Auth {
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody User user) {
-        if (user.getEmail() == null || !user.getEmail().endsWith("@joeyfox.dev")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Sorry, you cannot register.");
-        }
-
-        // Check ID (Email)
-        if (userRepository.existsById(user.getEmail())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email is already taken.");
-        }
-
-        // Check Display Username
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username is already taken.");
-        }
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully!");
     }
 
     @PostMapping("/logout")
