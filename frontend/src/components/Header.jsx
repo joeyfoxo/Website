@@ -43,7 +43,7 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
 
     // Build dynamic navigation items based on role
     const currentNavItems = [...navItems];
-    const isAdmin = user?.role === 'ADMIN' || user?.role === 'JOEY';
+    const isAdmin = user?.role.rank <= 1;
 
     if (isAdmin) {
         currentNavItems.push({

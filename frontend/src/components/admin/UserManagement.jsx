@@ -63,8 +63,8 @@ const UserManagement = ({ currentUser }) => {
                                     {/* Wrapping Chip in a Box guarantees it anchors inside fixed layouts cleanly */}
                                     <Box sx={{ minWidth: 130, display: 'inline-block' }}>
                                         <Chip
-                                            label={user.role}
-                                            color={user.role === 'JOEY' ? 'secondary' : 'primary'}
+                                            label={user.role.role}
+                                            color={user.role.rank === 0 ? 'secondary' : 'primary'}
                                             size="small"
                                         />
                                     </Box>
@@ -72,7 +72,7 @@ const UserManagement = ({ currentUser }) => {
                                 {/* Fixed layout bug: Removed duplicate nested TableCell tags */}
                                 <TableCell align="right">
                                     <Select
-                                        value={user.role}
+                                        value={user.role.role}
                                         size="small"
                                         fullWidth // Spans the full 25% boundary allocated to this column nicely
                                         disabled={user.email === currentUser?.email}

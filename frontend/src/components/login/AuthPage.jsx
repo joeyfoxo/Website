@@ -16,6 +16,7 @@ import {
 import { ArrowBackIosNew as BackIcon } from "@mui/icons-material";
 import { login, register } from "../api/api.js";
 import { useAuth } from "./AuthContext.jsx";
+import BackButton from "../button/BackButton.jsx";
 
 export default function AuthPage() {
     const theme = useTheme();
@@ -35,10 +36,6 @@ export default function AuthPage() {
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
-    };
-
-    const handleBack = () => {
-        navigate("/");
     };
 
     const handleSubmit = async (e) => {
@@ -82,17 +79,7 @@ export default function AuthPage() {
             <Container maxWidth="xs">
                 {/* Back Button positioned above the Paper */}
                 <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                    <IconButton
-                        onClick={handleBack}
-                        sx={{
-                            color: theme.palette.text.secondary,
-                            transition: 'all 0.2s',
-                            '&:hover': { color: theme.palette.primary.main, bgcolor: 'transparent' }
-                        }}
-                    >
-                        <BackIcon sx={{ fontSize: 18, mr: 0.5 }} />
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>Back</Typography>
-                    </IconButton>
+                    <BackButton to={"/"} />
                 </Box>
 
                 <Paper

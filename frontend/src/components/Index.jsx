@@ -97,11 +97,12 @@ function Home() {
  * If the user isn't logged in, it sends them to the /auth page.
  */
 const ProtectedRoute = ({ children }) => {
-    const { user, loading } = useAuth(); // Ensure your context provides a 'loading' state
 
+    const { user, loading } = useAuth(); // Ensure your context provides a 'loading' state
+    const isAdminOrAbove = user && user.role.rank <= 1;
 
     if (loading) return <div>Checking session...</div>;
-    if (!user || (user.role !== 'ADMIN' && user.role !== 'JOEY')) {
+    if (!isAdminOrAbove) {
         return <Navigate to="/" replace />;
     }
 
@@ -115,14 +116,8 @@ export default function Index() {
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/account" element={ <ProfilePage /> }/>
 
-                {/* Private/Protected Routes */}
-                <Route
-                    path="/account"
-                    element={
-                    <ProfilePage />
-                    }
-                />
                 <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>}>
                     <Route path="users" element={<UserManagement />} />
                 </Route>

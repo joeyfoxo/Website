@@ -7,23 +7,12 @@ import BackButton from "../button/BackButton.jsx"; // Adjust path if needed
 
 const AdminPanel = () => {
     const [activeTab, setActiveTab] = useState(0);
-
-    // 1. Pull out 'user' directly. No more confusing aliases!
     const { user } = useAuth();
 
     const handleTabChange = (event, newValue) => {
         setActiveTab(newValue);
     };
 
-    // 2. Updated access check to use 'user'
-    const hasAccess = user?.role === 'ADMIN' || user?.role === 'JOEY';
-    if (!hasAccess) {
-        return (
-            <Box sx={{ p: 4 }}>
-                <Typography color="error">Access Denied</Typography>
-            </Box>
-        );
-    }
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, p: 4 }}>
@@ -41,7 +30,7 @@ const AdminPanel = () => {
                         System Administration
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        Logged in as: {user.username} ({user.role})
+                        Logged in as: {user.username} ({user.role.role})
                     </Typography>
                 </Box>
             </Box>

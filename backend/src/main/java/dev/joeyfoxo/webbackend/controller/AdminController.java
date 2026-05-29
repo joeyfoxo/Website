@@ -1,5 +1,6 @@
 package dev.joeyfoxo.webbackend.controller;
 
+import dev.joeyfoxo.webbackend.dto.RoleInfoResponse;
 import dev.joeyfoxo.webbackend.models.User;
 import dev.joeyfoxo.webbackend.models.UserRepository;
 import dev.joeyfoxo.webbackend.dto.UserResponse; // Make sure to import your DTO
@@ -8,13 +9,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin")
-@PreAuthorize("hasAnyRole('ADMIN', 'JOEY')")
+@PreAuthorize("@securityService.isAdminOrAbove(authentication)")
 public class AdminController {
 
     private final UserRepository userRepository;
@@ -31,7 +34,7 @@ public class AdminController {
     }
 
     @PutMapping("/users/{email}/role")
-    @PreAuthorize("hasAnyRole('ADMIN', 'JOEY')")
+    @PreAuthorize("@securityService.isJoey(authentication)")
     public ResponseEntity<Void> updateUserRole(@PathVariable String email, @RequestBody Map<String, String> body) {
         User user = userRepository.findById(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -42,4 +45,5 @@ public class AdminController {
 
         return ResponseEntity.ok().build();
     }
+
 }

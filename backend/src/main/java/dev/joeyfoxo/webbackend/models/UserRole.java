@@ -1,5 +1,21 @@
 package dev.joeyfoxo.webbackend.models;
 
+import lombok.Getter;
+
+@Getter
 public enum UserRole {
-    JOEY, ADMIN, DEV, BOT, TRUSTED, AUTHENTICATED
+    JOEY(0, "Me 🦊"),
+    ADMIN(1, "Admin users have full access to all resources and operations"),
+    DEV(2, "Other developers who may need access to my stuff"),
+    BOT(3, "Commonly assigned for Bots and Webhooks"),
+    TRUSTED(4, "A Trusted User"),
+    AUTHENTICATED(5, "Authenticated User");
+
+    private final String description;
+    private final int permissionRank; // Low = Highest Rank
+    UserRole(int permissionRank, String description) {
+        this.permissionRank = permissionRank;
+        this.description = description;
+    }
+
 }

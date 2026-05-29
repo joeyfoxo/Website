@@ -6,6 +6,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
     // Use a Ref to ensure we only check the session once per page load
     const hasChecked = useRef(false);
 
@@ -30,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, setUser, loading, verifySession }}>
+        <AuthContext.Provider value={{ user, setUser, loading, verifySession, isEditing, setIsEditing }}>
             {children}
         </AuthContext.Provider>
     );

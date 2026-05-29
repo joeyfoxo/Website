@@ -74,7 +74,7 @@ export default function ProfilePage() {
 
                             <Stack direction="row" justifyContent="center" spacing={1} sx={{ mb: 4 }}>
                                 <Chip
-                                    label={user?.role || "AUTHENTICATED"}
+                                    label={user?.role.role || "AUTHENTICATED"}
                                     size="small"
                                     sx={{ fontWeight: 700, bgcolor: theme.palette.action.hover, color: theme.palette.primary.main }}
                                 />
@@ -97,7 +97,7 @@ export default function ProfilePage() {
                                         <Security fontSize="inherit" /> PERMISSIONS
                                     </Typography>
                                     <Typography variant="body2" sx={{ color: theme.palette.text.primary }}>
-                                        Access granted to developer tools and system configurations.
+                                        {user?.role.description || "Standard authenticated user with no special permissions."}
                                     </Typography>
                                 </Box>
                             </Stack>
