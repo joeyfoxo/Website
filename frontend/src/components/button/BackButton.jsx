@@ -9,7 +9,7 @@ export default function BackButton({ to }) {
 
     const handleBack = () => {
         // If the browser has history, go back one step. Otherwise, go to the fallback path
-        if (window.history.state && window.history.length > 1) {
+        if (window.history.state && window.history.length > 2) {
             navigate(-1);
         } else if (to) {
             navigate(to);

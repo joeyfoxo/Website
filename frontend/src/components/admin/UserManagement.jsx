@@ -35,47 +35,57 @@ const UserManagement = ({ currentUser }) => {
     if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}><CircularProgress /></Box>;
 
     return (
-        <Box>
+        // Max-width constrains the overall size, centering it nicely inside your AdminPanel layout
+        <Box sx={{ maxWidth: 900, margin: '0 auto', p: 1 }}>
             {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
             <TableContainer>
-                <Table>
+                {/* tableLayout: 'fixed' forces columns to respect their set widths strictly */}
+                <Table sx={{ tableLayout: 'fixed' }}>
                     <TableHead>
                         <TableRow>
-                            <TableCell>User</TableCell>
-                            <TableCell>Role Status</TableCell>
-                            <TableCell align="right">Actions</TableCell>
+                            <TableCell sx={{ width: '45%' }}>User</TableCell>
+                            <TableCell sx={{ width: '30%' }}>Role Status</TableCell>
+                            <TableCell sx={{ width: '25%' }} align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {users.map((user) => (
                             <TableRow key={user.email} hover>
-                                <TableCell>
-                                    <Typography variant="body1">{user.username}</Typography>
-                                    <Typography variant="caption" color="text.secondary">{user.email}</Typography>
+                                <TableCell sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                                        {user.username}
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary" display="block">
+                                        {user.email}
+                                    </Typography>
                                 </TableCell>
                                 <TableCell>
-                                    <Chip
-                                        label={user.role}
-                                        color={user.role === 'JOEY' ? 'secondary' : 'primary'}
-                                        size="small"
-                                    />
-                                </TableCell>
-                                <TableCell align="right">
-                                    <TableCell align="right">
-                                        <Select
-                                            value={user.role}
+                                    {/* Wrapping Chip in a Box guarantees it anchors inside fixed layouts cleanly */}
+                                    <Box sx={{ minWidth: 130, display: 'inline-block' }}>
+                                        <Chip
+                                            label={user.role}
+                                            color={user.role === 'JOEY' ? 'secondary' : 'primary'}
                                             size="small"
-                                            disabled={user.email === currentUser.email}
-                                            onChange={(e) => handleRoleChange(user.email, e.target.value)}
-                                        >
-                                            <MenuItem value="AUTHENTICATED">AUTHENTICATED</MenuItem>
-                                            <MenuItem value="TRUSTED">TRUSTED</MenuItem>
-                                            <MenuItem value="DEV">DEV</MenuItem>
-                                            <MenuItem value="BOT">BOT</MenuItem>
-                                            <MenuItem value="ADMIN">ADMIN</MenuItem>
-                                            <MenuItem value="JOEY">JOEY</MenuItem>
-                                        </Select>
-                                    </TableCell>
+                                        />
+                                    </Box>
+                                </TableCell>
+                                {/* Fixed layout bug: Removed duplicate nested TableCell tags */}
+                                <TableCell align="right">
+                                    <Select
+                                        value={user.role}
+                                        size="small"
+                                        fullWidth // Spans the full 25% boundary allocated to this column nicely
+                                        disabled={user.email === currentUser?.email}
+                                        onChange={(e) => handleRoleChange(user.email, e.target.value)}
+                                        sx={{ minWidth: 120 }}
+                                    >
+                                        <MenuItem value="AUTHENTICATED">AUTHENTICATED</MenuItem>
+                                        <MenuItem value="TRUSTED">TRUSTED</MenuItem>
+                                        <MenuItem value="DEV">DEV</MenuItem>
+                                        <MenuItem value="BOT">BOT</MenuItem>
+                                        <MenuItem value="ADMIN">ADMIN</MenuItem>
+                                        <MenuItem value="JOEY">JOEY</MenuItem>
+                                    </Select>
                                 </TableCell>
                             </TableRow>
                         ))}

@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
-    Box, Button, Typography, Paper, Container,
+    Box, Typography, Paper, Container,
     CircularProgress, useTheme, Avatar, Divider, Stack, Chip
 } from "@mui/material";
-import { Logout, Email, Security } from "@mui/icons-material";
+import { Email, Security } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
-import { getProfile, logout } from "../api/api.js";
+import { getProfile } from "../api/api.js";
 import { useAuth } from "./AuthContext.jsx";
-// Import your new reusable component
 import BackButton from "../button/BackButton.jsx";
+import LogoutButton from "../button/LogoutButton.jsx";
 
 const pageVariants = {
     initial: { opacity: 0, y: 20 },
@@ -21,7 +20,6 @@ export default function ProfilePage() {
     const theme = useTheme();
     const [loading, setLoading] = useState(true);
     const { user, setUser } = useAuth();
-    const navigate = useNavigate();
 
     useEffect(() => {
         const loadProfile = async () => {
@@ -30,22 +28,13 @@ export default function ProfilePage() {
                 setUser(userData);
             } catch (err) {
                 setUser(null);
-                navigate("/auth");
+                // If profile loading fails, the AuthProvider/Interceptors handle the session wipe
             } finally {
                 setLoading(false);
             }
         };
         loadProfile();
-    }, [navigate, setUser]);
-
-    const handleLogout = async () => {
-        try {
-            await logout();
-        } finally {
-            setUser(null);
-            navigate("/", { replace: true });
-        }
-    };
+    }, [setUser]);
 
     if (loading) {
         return (
@@ -61,16 +50,12 @@ export default function ProfilePage() {
                 <AnimatePresence mode="wait">
                     <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit">
 
+                        {/* Top bar utilizing both isolated layout buttons */}
                         <Box sx={{ mb: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <BackButton to="/" />
 
-                            <Button
-                                startIcon={<Logout />}
-                                onClick={handleLogout}
-                                sx={{ textTransform: "none", color: theme.palette.error.main, fontWeight: 600 }}
-                            >
-                                Sign Out
-                            </Button>
+                            {/* Passing error coloring as custom style prop */}
+                            <LogoutButton sx={{ color: theme.palette.error.main }} />
                         </Box>
 
                         <Paper elevation={0} sx={{ p: { xs: 4, md: 6 }, borderRadius: 5, border: "1px solid", borderColor: theme.palette.divider, bgcolor: theme.palette.background.paper }}>
