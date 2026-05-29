@@ -36,7 +36,7 @@ services:
     restart: always
     ports:
       # Maps local machine port 8081 to the container's port 80
-      - "8081:80"
+      - "80:80"
     volumes:
       # Syncs your custom Nginx configuration file to the server
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
