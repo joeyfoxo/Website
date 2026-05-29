@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { IconButton } from '@mui/material';
 import { Brightness4, Brightness7 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
-import { ColorModeContext } from './ThemeContext';
+import { ColorModeContext } from '../../util/ThemeContext.jsx';
 
 export default function ThemeToggle() {
     const theme = useTheme();

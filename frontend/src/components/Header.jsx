@@ -18,7 +18,7 @@ import {
     Settings as SettingsIcon,
     AdminPanelSettings as AdminIcon, // Added for Admin access
 } from '@mui/icons-material';
-import ThemeToggle from './util/ThemeToggle';
+import ThemeToggle from './button/toggle/ThemeToggle.jsx';
 import { ColorModeContext } from "./util/ThemeContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./login/AuthContext.jsx";

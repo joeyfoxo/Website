@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import { Edit as EditIcon, Check as CheckIcon } from '@mui/icons-material';
-import { useAuth } from '../login/AuthContext.jsx';
+import {useAuth} from "../../login/AuthContext.jsx";
 
 export default function EditModeToggle() {
     const theme = useTheme();
@@ -10,9 +10,9 @@ export default function EditModeToggle() {
 
     if (loading) return null;
 
-    // Check if user is JOEY (0) or ADMIN (1) based on your new rank logic
-    const isAdminOrAbove = user && user.roleInfo?.rank <= 1;
-    if (!isAdminOrAbove) return null;
+    // Check if user is JOEY (0)
+    const isJoey = user && user.role?.rank === 0;
+    if (!isJoey) return null;
 
     return (
         <Box sx={{ position: 'fixed', top: 24, right: 24, zIndex: 9999 }}>
