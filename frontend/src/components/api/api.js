@@ -19,6 +19,15 @@ const adminApi = axios.create({
     }
 });
 
+const filesApi = axios.create({
+    baseURL: "/api/files",
+    withCredentials: true,
+    // Note: Don't hardcode Content-Type here; Axios automatically sets the proper boundary for FormData
+    headers: {
+        "Accept": "application/json"
+    }
+});
+
 function handleError(error) {
     if (error.response) {
         const status = error.response.status;
@@ -102,6 +111,51 @@ export async function updateUserRole(email, newRole) {
     try {
         const response = await adminApi.put(`/users/${email}/role`, { role: newRole });
         return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+export async function uploadFile(file) {
+    try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await filesApi.post("/upload", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+export async function fetchFiles() {
+    try {
+        const response = await filesApi.get("");
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+export async function downloadFile(filename, displayName) {
+    try {
+        const response = await filesApi.get(`/download/${filename}`, {
+            responseType: 'blob'
+        });
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', displayName);
+        document.body.appendChild(link);
+        link.click();
+
+        link.parentNode.removeChild(link);
+        window.URL.revokeObjectURL(url);
     } catch (error) {
         handleError(error);
     }

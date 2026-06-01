@@ -21,6 +21,7 @@ import {
 import UserManagement from './UserManagement';
 import { useAuth } from '../login/AuthContext.jsx';
 import BackButton from "../button/BackButton.jsx";
+import SharedFilesManager from "./SharedFIleManager.jsx";
 
 const DRAWER_WIDTH = 260;
 
@@ -35,7 +36,7 @@ const AdminPanel = () => {
 
     const menuItems = [
         { label: 'User Management', icon: <PeopleIcon />, index: 0 },
-        { label: 'System Stats', icon: <DashIcon />, index: 1 },
+        { label: 'FTP File Transfer', icon: <DashIcon />, index: 1 },
         { label: 'Security Logs', icon: <SecurityIcon />, index: 2 },
     ];
 
@@ -229,7 +230,7 @@ const AdminPanel = () => {
                     }}
                 >
                     {activeTab === 0 && <UserManagement currentUser={user} />}
-                    {activeTab === 1 && <Typography color="text.secondary">Server stats coming soon...</Typography>}
+                    {activeTab === 1 && <SharedFilesManager  />}
                     {activeTab === 2 && <Typography color="text.secondary">Audit logs coming soon...</Typography>}
                 </Paper>
             </Box>

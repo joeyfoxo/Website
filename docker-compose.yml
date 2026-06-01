@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   # The Database: Creates an isolated PostgreSQL instance for local development
   db:
@@ -8,11 +10,9 @@ services:
       - "5433:5432"
     environment:
       POSTGRES_DB: portfolio_db
-      # DB_USER and DB_PASSWORD are pulled from your local .env file
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      # Persists data to your local machine so it survives container restarts
       - postgres_data:/var/lib/postgresql/data
 
   # The Backend: The Spring Boot API that connects to the 'db' service
@@ -21,12 +21,13 @@ services:
     container_name: portfolio-api
     restart: always
     environment:
-      # Tells Spring how to connect to the 'db' container
       SPRING_DATASOURCE_URL: ${DB_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      # PERFECT FIT: Maps your exact VPS folder to the container's internal storage
+      - "/root/Shared Files:/app/storage"
     depends_on:
-      # Ensures the database is ready before starting the backend
       - db
 
   # The Frontend: Serves your React app via Nginx
@@ -35,11 +36,11 @@ services:
     container_name: portfolio-nginx
     restart: always
     ports:
-      # Maps local machine port 8081 to the container's port 80
       - "80:80"
     volumes:
-      # Syncs your custom Nginx configuration file to the server
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      # Optional read-only bridge matching your exact path
+      - "/root/Shared Files:/app/storage:ro"
     depends_on:
       - backend
 
