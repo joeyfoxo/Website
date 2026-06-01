@@ -54,6 +54,33 @@ public class FileStorageService {
         }
     }
 
+    public String saveFile(MultipartFile file, UserRole role) {
+        Path targetBaseDirectory = roleFolderMapping.get(role);
+        if (targetBaseDirectory == null) {
+            throw new IllegalArgumentException("Invalid role permissions.");
+        }
+
+        try {
+            if (!Files.exists(targetBaseDirectory)) {
+                Files.createDirectories(targetBaseDirectory);
+            }
+
+            String originalFileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+            if (originalFileName.contains("..") || originalFileName.isEmpty()) {
+                throw new IllegalArgumentException("Invalid file name layout: " + originalFileName);
+            }
+
+            String uniqueFileName = UUID.randomUUID().toString() + "_" + originalFileName;
+            Path targetLocation = targetBaseDirectory.resolve(uniqueFileName);
+
+            Files.copy(file.getInputStream(), targetLocation);
+
+            return uniqueFileName;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to safely store file payload: " + e.getMessage(), e);
+        }
+    }
+
     public Resource loadFile(String filename, UserRole role) {
         Path targetBaseDirectory = roleFolderMapping.get(role);
         if (targetBaseDirectory == null) {
