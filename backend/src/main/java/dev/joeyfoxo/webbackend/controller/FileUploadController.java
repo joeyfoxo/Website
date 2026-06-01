@@ -34,7 +34,7 @@ public class FileUploadController {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        User user = userRepository.findById(authentication.getName())
+        User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found."));
 
         return ResponseEntity.ok(fileStorageService.listFiles(user.getRole()));
@@ -45,7 +45,7 @@ public class FileUploadController {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        User user = userRepository.findById(authentication.getName())
+        User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found."));
 
         Resource fileResource = fileStorageService.loadFile(filename, user.getRole());
