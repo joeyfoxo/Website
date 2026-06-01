@@ -54,7 +54,6 @@ public class FileUploadController {
         }
 
         try {
-            // Passes file and role context directly to your storage service engine
             String savedFilename = fileStorageService.saveFile(file, user.getRole());
 
             return ResponseEntity.ok(Map.of(
