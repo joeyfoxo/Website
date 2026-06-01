@@ -53,7 +53,11 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         // FIX 1: Added the /api/ prefix to match your actual frontend requests
-                        .requestMatchers("/api/auth/**", "/api/admin/**", "/error").permitAll()
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/api/admin/**",
+                                "/api/files/**",
+                                "/error").permitAll()
                         .anyRequest().authenticated()
                 ).logout(logout -> logout
                         .logoutUrl("/api/auth/logout")
