@@ -25,8 +25,8 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
     volumes:
-      # PERFECT FIT: Maps your exact VPS folder to the container's internal storage
-      - "/root/Shared Files:/app/storage"
+      # ALIGNED: Fixed spacing to ensure standard YAML parsing
+      - "./FileStorage:/app/storage"
     depends_on:
       - db
 
@@ -39,8 +39,8 @@ services:
       - "80:80"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      # Optional read-only bridge matching your exact path
-      - "/root/Shared Files:/app/storage:ro"
+      # MATCHED PATH: Optional read-only bridge matching your exact path
+      - "./FileStorage:/app/storage:ro"
     depends_on:
       - backend
 

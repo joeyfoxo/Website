@@ -99,7 +99,7 @@ function Home() {
 const ProtectedRoute = ({ children }) => {
 
     const { user, loading } = useAuth(); // Ensure your context provides a 'loading' state
-    const isAdminOrAbove = user && user.role.rank <= 1;
+    const isAdminOrAbove = user?.role?.rank <= 1;
 
     if (loading) return <div>Checking session...</div>;
     if (!isAdminOrAbove) {

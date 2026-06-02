@@ -1,6 +1,5 @@
 import axios from "axios";
 
-
 const authApi = axios.create({
     baseURL: "/api/auth",
     withCredentials: true,
@@ -22,7 +21,6 @@ const adminApi = axios.create({
 const filesApi = axios.create({
     baseURL: "/api/files",
     withCredentials: true,
-    // Note: Don't hardcode Content-Type here; Axios automatically sets the proper boundary for FormData
     headers: {
         "Accept": "application/json"
     }
@@ -33,16 +31,11 @@ function handleError(error) {
         const status = error.response.status;
         const data = error.response.data;
 
-        // 1. If the backend sent a direct error message, use it!
         if (data) {
-            // Handles cases where backend sends a raw string (like your custom controller responses)
             if (typeof data === 'string') throw new Error(data);
-
-            // Handles cases where Spring Boot sends its standard error object map
             if (data.message) throw new Error(data.message);
         }
 
-        // 2. Global contextual fallbacks if the backend didn't provide a specific message body
         if (status === 401) throw new Error("Session expired. Please log in again.");
         if (status === 403) throw new Error("Access denied. You do not have permission to view this resource.");
         if (status === 409) throw new Error("A conflict occurred. This resource may already exist.");
@@ -52,10 +45,10 @@ function handleError(error) {
 
     throw new Error("Server unreachable. Please check your network connection.");
 }
+
 export async function login(username, password) {
     try {
-        // CLEAN: Sending a JSON body, not manual Basic Auth headers
-        const response = await authApi.post("/login", { username, password });;
+        const response = await authApi.post("/login", { username, password });
         return response.data;
     } catch (error) {
         handleError(error);
@@ -89,22 +82,18 @@ export async function getProfile() {
     try {
         const response = await authApi.get("/profile");
         return response.data;
-    }
-    catch (error) {
+    } catch (error) {
         handleError(error);
     }
 }
 
-
-    export async function fetchAllUsers() {
-        try {
-            // This hits the /admin/users endpoint you just created in Java
-            const response = await adminApi.get("/users");
-            return response.data;
-        } catch (error) {
-            // You might want to add a 403 specific error here for "Admin only"
-            handleError(error);
-        }
+export async function fetchAllUsers() {
+    try {
+        const response = await adminApi.get("/users");
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
 }
 
 export async function updateUserRole(email, newRole) {
@@ -116,12 +105,32 @@ export async function updateUserRole(email, newRole) {
     }
 }
 
-export async function uploadFile(file) {
+/**
+ * Creates a brand new folder directory sub-node
+ */
+export async function createFolder(folderName, role, path = "") {
+    try {
+        const response = await filesApi.post("/folder", { folderName, role, path });
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+/**
+ * Uploads a file inside a specific directory level, handling administrative overrides
+ */
+export async function uploadFile(file, role = null, path = "") {
     try {
         const formData = new FormData();
         formData.append("file", file);
 
+        const params = {};
+        if (role) params.role = role;
+        if (path) params.path = path;
+
         const response = await filesApi.post("/upload", formData, {
+            params,
             headers: {
                 "Content-Type": "multipart/form-data"
             }
@@ -132,19 +141,69 @@ export async function uploadFile(file) {
     }
 }
 
-export async function fetchFiles() {
+export async function fetchFiles(path = "") {
     try {
-        const response = await filesApi.get("");
+        const response = await filesApi.get("", {
+            params: { path }
+        });
         return response.data;
     } catch (error) {
         handleError(error);
     }
 }
 
-export async function downloadFile(filename, displayName) {
+export async function fetchFilesByRole(role, path = "") {
     try {
+        const response = await filesApi.get("", {
+            params: { role, path }
+        });
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+/**
+ * Deletes a file or directory tree inside a specific structural sub-node path
+ */
+export async function deleteFile(filename, role, path = "") {
+    try {
+        const response = await filesApi.delete(`/delete/${filename}`, {
+            params: { role, path }
+        });
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+/**
+ * Renames an object passing full metadata via JSON payload bodies
+ */
+export async function renameFile(filename, newDisplayName, role, path = "") {
+    try {
+        const response = await filesApi.put("/rename",
+            { filename, newDisplayName, role, path },
+            { headers: { "Content-Type": "application/json" } }
+        );
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+/**
+ * Downloads a binary asset block targeting a precise path context
+ */
+export async function downloadFile(filename, displayName, role = null, path = "") {
+    try {
+        const params = {};
+        if (role) params.role = role;
+        if (path) params.path = path;
+
         const response = await filesApi.get(`/download/${filename}`, {
-            responseType: 'blob'
+            responseType: 'blob',
+            params
         });
 
         const url = window.URL.createObjectURL(new Blob([response.data]));

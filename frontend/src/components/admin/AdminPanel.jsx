@@ -230,7 +230,7 @@ const AdminPanel = () => {
                     }}
                 >
                     {activeTab === 0 && <UserManagement currentUser={user} />}
-                    {activeTab === 1 && <SharedFilesManager  />}
+                    {activeTab === 1 && <SharedFilesManager currentUser={user} />}
                     {activeTab === 2 && <Typography color="text.secondary">Audit logs coming soon...</Typography>}
                 </Paper>
             </Box>

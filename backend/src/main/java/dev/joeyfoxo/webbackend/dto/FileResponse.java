@@ -1,3 +1,8 @@
 package dev.joeyfoxo.webbackend.dto;
 
-public record FileResponse(String fullName, String displayName, long sizeBytes) {}
+public record FileResponse(
+        String fullName,
+        String displayName,
+        long sizeBytes,
+        boolean isFolder
+) {}
