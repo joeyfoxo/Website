@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,8 +20,10 @@ import java.util.stream.Stream;
 @Service
 public class FileStorageService {
 
-    // Target tracking path accurately pointed directly to your host's linked storage partition
     private static final String BASE_STORAGE_PATH = "/app/storage";
+
+    // Cryptographically secure random generator for compact tracking IDs
+    private final SecureRandom secureRandom = new SecureRandom();
 
     private final Map<UserRole, Path> roleFolderMapping = Map.of(
             UserRole.JOEY, Paths.get(BASE_STORAGE_PATH, "JOEY"),
@@ -37,14 +40,13 @@ public class FileStorageService {
             return Collections.emptyList();
         }
 
-        // Try-with-resources safely autocloses OS directory streams
         try (Stream<Path> stream = Files.list(targetDirectory)) {
             return stream
                     .map(path -> {
                         String fullName = path.getFileName().toString();
                         boolean isDir = Files.isDirectory(path);
 
-                        // Only strip the UUID prefix if it's an actual file file, preserving folder layouts
+                        // Perfectly strips the short token prefix just like it did with the UUID
                         String displayName = (!isDir && fullName.contains("_"))
                                 ? fullName.substring(fullName.indexOf("_") + 1)
                                 : fullName;
@@ -54,7 +56,6 @@ public class FileStorageService {
                             try { size = Files.size(path); } catch (IOException ignored) {}
                         }
 
-                        // Matches your updated 4-parameter record type
                         return new FileResponse(fullName, displayName, size, isDir);
                     })
                     .collect(Collectors.toList());
@@ -67,7 +68,6 @@ public class FileStorageService {
         Path currentDirectory = resolveSafePath(role, subPath);
         Path newFolderPath = currentDirectory.resolve(StringUtils.cleanPath(folderName)).normalize();
 
-        // Enforce role container limitations before allocating directory blocks
         validateBoundary(newFolderPath, role);
 
         try {
@@ -90,7 +90,8 @@ public class FileStorageService {
                 throw new IllegalArgumentException("Invalid file name layout: " + originalFileName);
             }
 
-            String uniqueFileName = UUID.randomUUID().toString() + "_" + originalFileName;
+            // Swapped standard long UUID out for a compact secure numeric tracking token
+            String uniqueFileName = generateShortPrefix() + "_" + originalFileName;
             Path targetLocation = targetDirectory.resolve(uniqueFileName);
 
             Files.copy(file.getInputStream(), targetLocation);
@@ -122,7 +123,6 @@ public class FileStorageService {
 
         try {
             if (Files.isDirectory(targetPath)) {
-                // Safely crawl subdirectories and execute deep wipe contexts in reverse order
                 try (Stream<Path> walk = Files.walk(targetPath)) {
                     List<Path> paths = walk.sorted(Comparator.reverseOrder()).collect(Collectors.toList());
                     for (Path p : paths) {
@@ -148,9 +148,10 @@ public class FileStorageService {
             if (Files.isDirectory(oldFilePath)) {
                 newFullName = StringUtils.cleanPath(newDisplayName).replace("..", "");
             } else {
-                String uuidPrefix = oldFullName.contains("_") ? oldFullName.substring(0, oldFullName.indexOf("_") + 1) : "";
+                // Dynamically tracks the clean index split regardless of prefix length string length
+                String trackingPrefix = oldFullName.contains("_") ? oldFullName.substring(0, oldFullName.indexOf("_") + 1) : "";
                 String cleanNewName = StringUtils.cleanPath(newDisplayName).replace("..", "");
-                newFullName = uuidPrefix + cleanNewName;
+                newFullName = trackingPrefix + cleanNewName;
             }
 
             Path targetNewLocation = oldFilePath.getParent().resolve(newFullName).normalize();
@@ -163,7 +164,16 @@ public class FileStorageService {
         }
     }
 
-    // --- PRIVATE HELPER METHODS TO ELIMINATE DUPLICATION ---
+    // --- PRIVATE HELPER METHODS ---
+
+    /**
+     * Generates a 6-digit zero-padded numeric string prefix (000000 - 999999).
+     * Scoped down inside individual subfolders, this keeps name collision rates near non-existent.
+     */
+    private String generateShortPrefix() {
+        int token = secureRandom.nextInt(1000000);
+        return String.format("%06d", token);
+    }
 
     private Path getTargetDirectory(UserRole role) {
         Path targetBaseDirectory = roleFolderMapping.get(role);
