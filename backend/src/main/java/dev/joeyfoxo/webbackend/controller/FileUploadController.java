@@ -128,11 +128,9 @@ public class FileUploadController {
         UserRole targetRole = determineTargetRole(role, user);
         Resource fileResource = fileStorageService.loadFile(filename, targetRole, path);
 
-        String cleanName = filename.contains("_") ? filename.substring(filename.indexOf("_") + 1) : filename;
-
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + cleanName + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                 .body(fileResource);
     }
 

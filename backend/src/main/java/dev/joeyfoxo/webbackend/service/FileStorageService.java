@@ -9,6 +9,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,20 +44,16 @@ public class FileStorageService {
         try (Stream<Path> stream = Files.list(targetDirectory)) {
             return stream
                     .map(path -> {
-                        String fullName = path.getFileName().toString();
+                        String fileName = path.getFileName().toString();
                         boolean isDir = Files.isDirectory(path);
 
-                        // Perfectly strips the short token prefix just like it did with the UUID
-                        String displayName = (!isDir && fullName.contains("_"))
-                                ? fullName.substring(fullName.indexOf("_") + 1)
-                                : fullName;
-
+                        // No longer need to strip prefixes; the name is the display name
                         long size = 0;
                         if (!isDir) {
                             try { size = Files.size(path); } catch (IOException ignored) {}
                         }
 
-                        return new FileResponse(fullName, displayName, size, isDir);
+                        return new FileResponse(fileName, fileName, size, isDir);
                     })
                     .collect(Collectors.toList());
         } catch (IOException e) {
@@ -90,12 +87,15 @@ public class FileStorageService {
                 throw new IllegalArgumentException("Invalid file name layout: " + originalFileName);
             }
 
-            // Swapped standard long UUID out for a compact secure numeric tracking token
-            String uniqueFileName = generateShortPrefix() + "_" + originalFileName;
-            Path targetLocation = targetDirectory.resolve(uniqueFileName);
+            Path targetLocation = targetDirectory.resolve(originalFileName);
+
+            // Prevent accidental overwriting of existing files
+            if (Files.exists(targetLocation)) {
+                throw new FileAlreadyExistsException("File already exists: " + originalFileName);
+            }
 
             Files.copy(file.getInputStream(), targetLocation);
-            return uniqueFileName;
+            return originalFileName;
         } catch (IOException e) {
             throw new RuntimeException("Failed to safely store file payload: " + e.getMessage(), e);
         }
@@ -124,7 +124,7 @@ public class FileStorageService {
         try {
             if (Files.isDirectory(targetPath)) {
                 try (Stream<Path> walk = Files.walk(targetPath)) {
-                    List<Path> paths = walk.sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+                    List<Path> paths = walk.sorted(Comparator.reverseOrder()).toList();
                     for (Path p : paths) {
                         Files.delete(p);
                     }
@@ -138,42 +138,29 @@ public class FileStorageService {
         }
     }
 
-    public String renameFile(String oldFullName, String newDisplayName, UserRole role, String subPath) {
+    public String renameFile(String oldFullName, String newDisplayName, UserRole role, String subPath) throws FileAlreadyExistsException {
         Path targetDir = resolveSafePath(role, subPath);
         Path oldFilePath = targetDir.resolve(oldFullName).normalize();
         validateBoundary(oldFilePath, role);
 
+        // Sanitize and define the new destination
+        String newFullName = StringUtils.cleanPath(newDisplayName).replace("..", "");
+        Path targetNewLocation = oldFilePath.getParent().resolve(newFullName).normalize();
+
+        // Safety check: Don't overwrite existing files during a rename
+        if (Files.exists(targetNewLocation)) {
+            throw new FileAlreadyExistsException("A file or folder with the name '" + newFullName + "' already exists.");
+        }
+
         try {
-            String newFullName;
-            if (Files.isDirectory(oldFilePath)) {
-                newFullName = StringUtils.cleanPath(newDisplayName).replace("..", "");
-            } else {
-                // Dynamically tracks the clean index split regardless of prefix length string length
-                String trackingPrefix = oldFullName.contains("_") ? oldFullName.substring(0, oldFullName.indexOf("_") + 1) : "";
-                String cleanNewName = StringUtils.cleanPath(newDisplayName).replace("..", "");
-                newFullName = trackingPrefix + cleanNewName;
-            }
-
-            Path targetNewLocation = oldFilePath.getParent().resolve(newFullName).normalize();
-            validateBoundary(targetNewLocation, role);
-
             Files.move(oldFilePath, targetNewLocation);
             return newFullName;
         } catch (IOException e) {
-            throw new RuntimeException("Could not execute target structural rename operation: " + e.getMessage(), e);
+            throw new RuntimeException("Could not execute structural rename operation: " + e.getMessage(), e);
         }
     }
 
     // --- PRIVATE HELPER METHODS ---
-
-    /**
-     * Generates a 6-digit zero-padded numeric string prefix (000000 - 999999).
-     * Scoped down inside individual subfolders, this keeps name collision rates near non-existent.
-     */
-    private String generateShortPrefix() {
-        int token = secureRandom.nextInt(1000000);
-        return String.format("%06d", token);
-    }
 
     private Path getTargetDirectory(UserRole role) {
         Path targetBaseDirectory = roleFolderMapping.get(role);
