@@ -45,9 +45,9 @@ public class Auth {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody User user) {
-        if (user.getEmail() == null || !user.getEmail().endsWith("@joeyfox.dev")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Sorry, you cannot register.");
-        }
+//        if (user.getEmail() == null || !user.getEmail().endsWith("@joeyfox.dev")) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Sorry, you cannot register.");
+//        }
 
         // Check ID (Email)
         if (userRepository.existsById(user.getEmail())) {
