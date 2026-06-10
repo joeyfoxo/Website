@@ -20,7 +20,7 @@ import {
     downloadFile,
     deleteFile,
     renameFile,
-    createFolder // Assumed backend hook for folder allocation
+    createFolder
 } from '../api/api.js';
 
 const SharedFilesManager = ({ currentUser }) => {
@@ -59,7 +59,7 @@ const SharedFilesManager = ({ currentUser }) => {
             const data = await fetchFilesByRole(selectedRole, getPathString());
             setFiles(data || []);
         } catch (error) {
-            setStatus({ type: 'error', message: error.message || "Failed to load directory files." });
+            setStatus({ type: 'error', message: error.message || "Failed to load files." });
         } finally {
             setIsLoading(false);
         }
@@ -98,12 +98,12 @@ const SharedFilesManager = ({ currentUser }) => {
         if (!newFolderName.trim()) return;
         try {
             await createFolder(newFolderName.trim(), selectedRole, getPathString());
-            setStatus({ type: 'success', message: `Folder "${newFolderName}" allocated successfully.` });
+            setStatus({ type: 'success', message: `Folder "${newFolderName.trim()}" created successfully.` });
             setNewFolderName("");
             setFolderModalOpen(false);
             await loadFilesList();
         } catch (error) {
-            setStatus({ type: 'error', message: error.message || "Failed to build directory folder." });
+            setStatus({ type: 'error', message: error.message || "Failed to create folder." });
         }
     };
 
@@ -115,7 +115,7 @@ const SharedFilesManager = ({ currentUser }) => {
         try {
             // Pass sub-path location along with file payload context
             await uploadFile(stagedFile, selectedRole, getPathString());
-            setStatus({ type: 'success', message: "File securely deposited." });
+            setStatus({ type: 'success', message: "File uploaded successfully." });
             setStagedFile(null);
             await loadFilesList();
         } catch (error) {
@@ -134,11 +134,11 @@ const SharedFilesManager = ({ currentUser }) => {
     };
 
     const handleDelete = async (file) => {
-        const targetType = file.isFolder ? "folder and all its nested contents" : "file";
+        const targetType = file.isFolder ? "folder and all its contents" : "file";
         if (!window.confirm(`Are you sure you want to permanently delete this ${targetType}?`)) return;
         try {
             await deleteFile(file.fullName, selectedRole, getPathString());
-            setStatus({ type: 'success', message: "Object dropped from storage node cluster." });
+            setStatus({ type: 'success', message: `Successfully deleted "${file.displayName}".` });
             await loadFilesList();
         } catch (error) {
             setStatus({ type: 'error', message: error.message || "Deletion failed." });
@@ -151,9 +151,9 @@ const SharedFilesManager = ({ currentUser }) => {
             await renameFile(oldFullName, newNameInput.trim(), selectedRole, getPathString());
             setEditingFilename(null);
             await loadFilesList();
-            setStatus({ type: 'success', message: "Resource reference updated successfully." });
+            setStatus({ type: 'success', message: "Rename completed successfully." });
         } catch (error) {
-            setStatus({ type: 'error', message: error.message || "Rename execution dropped." });
+            setStatus({ type: 'error', message: error.message || "Rename failed." });
         }
     };
 
@@ -201,7 +201,7 @@ const SharedFilesManager = ({ currentUser }) => {
                             Shared Storage File Explorer
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            Deposit, browse, and organize assets inside your current operational tier level.
+                            Manage your files and folders within your assigned workspace.
                         </Typography>
                     </Box>
 
@@ -305,7 +305,7 @@ const SharedFilesManager = ({ currentUser }) => {
                     <input type="file" id="file-upload-input" style={{ display: 'none' }} onChange={handleFileChange} disabled={isUploading} />
                     <UploadIcon sx={{ fontSize: 32, color: isDragActive ? 'primary.main' : 'text.secondary', mb: 0.5 }} />
                     <Typography variant="body2" textAlign="center">
-                        Drop files target to path or{' '}
+                        Drag and drop files here or{' '}
                         <label htmlFor="file-upload-input" style={{ color: '#2196f3', cursor: 'pointer', textDecoration: 'underline' }}>browse</label>
                     </Typography>
                 </Paper>
@@ -333,16 +333,16 @@ const SharedFilesManager = ({ currentUser }) => {
                         <LinearProgress sx={{ my: 4 }} />
                     ) : files.length === 0 ? (
                         <Paper variant="outlined" sx={{ p: 4, textAlign: 'center', borderRadius: 3, bgcolor: 'background.default' }}>
-                            <Typography variant="body2" color="text.secondary">Empty path layer workspace directory.</Typography>
+                            <Typography variant="body2" color="text.secondary">This folder is empty.</Typography>
                         </Paper>
                     ) : (
                         <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
                             <Table size="small">
                                 <TableHead sx={{ bgcolor: 'action.hover' }}>
                                     <TableRow>
-                                        <TableCell sx={{ fontWeight: 600, py: 1.5 }}>Object Name</TableCell>
+                                        <TableCell sx={{ fontWeight: 600, py: 1.5 }}>Name</TableCell>
                                         <TableCell sx={{ fontWeight: 600, py: 1.5 }} align="right">Size</TableCell>
-                                        <TableCell sx={{ fontWeight: 600, py: 1.5 }} align="center">Operations</TableCell>
+                                        <TableCell sx={{ fontWeight: 600, py: 1.5 }} align="center">Actions</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -404,7 +404,7 @@ const SharedFilesManager = ({ currentUser }) => {
 
             {/* --- NEW FOLDER DIALOG TRIGGER NODE --- */}
             <Dialog open={folderModalOpen} onClose={() => setFolderModalOpen(false)} size="small">
-                <DialogTitle>Allocate New Sub-node Directory</DialogTitle>
+                <DialogTitle>Create New Folder</DialogTitle>
                 <DialogContent>
                     <TextField
                         autoFocus margin="dense" label="Folder Name" type="text" fullWidth size="small" variant="outlined"
