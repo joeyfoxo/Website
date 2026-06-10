@@ -41,9 +41,6 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
     const hues = ['red', 'yellow', 'green', 'blue'];
     const [localHueIndex, setLocalHueIndex] = useState(0);
 
-    // Evaluate permissions for administrative features
-    const isTrusted = user?.role?.rank <= 4;
-
     const handleHueCycle = () => {
         const nextIndex = (localHueIndex + 1) % hues.length;
         setLocalHueIndex(nextIndex);
@@ -75,10 +72,6 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
         e.currentTarget.style.borderColor = isEntering
             ? theme.palette.textColors.link
             : theme.palette.text.primary;
-    };
-
-    const goToAuth = () => {
-        navigate(user ? "/account" : "/auth");
     };
 
     const currentHueColor =
@@ -122,35 +115,25 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                     <ThemeToggle />
                 </Box>
 
+                {/* --- MERGED LOGIN/ADMIN BUTTON --- */}
                 <Box
-                    onClick={goToAuth}
+                    onClick={() => {
+                        if (user) {
+                            navigate('/admin');
+                        } else {
+                            navigate('/auth');
+                        }
+                        if (isMobile) setMobileNavOpen(false);
+                    }}
                     style={circleButtonStyle(theme)}
                     onMouseEnter={handleHover(theme, true)}
                     onMouseLeave={handleHover(theme, false)}
                     role="button"
                     tabIndex={0}
-                    title={user ? "My Account" : "Login"}
+                    title={user ? "Control Panel" : "Login"}
                 >
-                    {user ? <SettingsIcon/> : <PersonIcon/>}
+                    {user ? <AdminIcon /> : <PersonIcon />}
                 </Box>
-
-                {/* Conditional Admin Circle Icon Link */}
-                {isTrusted && (
-                    <Box
-                        onClick={() => {
-                            navigate('/admin');
-                            if (isMobile) setMobileNavOpen(false);
-                        }}
-                        style={circleButtonStyle(theme)}
-                        onMouseEnter={handleHover(theme, true)}
-                        onMouseLeave={handleHover(theme, false)}
-                        role="button"
-                        tabIndex={0}
-                        title="Advanced Panel"
-                    >
-                        <AdminIcon />
-                    </Box>
-                )}
 
                 <Box
                     onClick={handleHueCycle}
