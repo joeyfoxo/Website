@@ -78,6 +78,7 @@ export async function logout() {
     }
 }
 
+// Example of what your api.js function should look like
 export async function getProfile() {
     try {
         const response = await authApi.get("/profile");
@@ -104,6 +105,15 @@ export async function updateUserRole(email, newRole) {
         handleError(error);
     }
 }
+
+export const deleteProfile = async (email) => {
+    try {
+        const response = await adminApi.delete(`/users/${email}`);
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
 
 /**
  * Creates a brand new folder directory sub-node

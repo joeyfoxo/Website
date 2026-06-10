@@ -47,7 +47,6 @@ export default function AuthPage() {
             if (isLogin) {
                 const userData = await login(form.username, form.password);
                 setUser(userData);
-                navigate("/account");
             } else {
                 await register(form.username, form.password, form.email);
                 setFeedback({ type: "success", message: "Registration successful! Please sign in." });

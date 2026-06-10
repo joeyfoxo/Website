@@ -46,4 +46,19 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/users/{email}")
+    @PreAuthorize("@securityService.isAdminOrAbove(authentication)") // Ensure only admins can hit this endpoint
+    public ResponseEntity<String> deleteUserByAdmin(@PathVariable String email) {
+
+        User user = userRepository.findById(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        System.out.println("Admin is deleting user: " + user.getUsername() + " with email: " + user.getEmail());
+        System.out.println();
+        // 2. Delete the target user
+        userRepository.delete(user);
+
+        return ResponseEntity.ok("User deleted successfully by admin");
+    }
+
 }
