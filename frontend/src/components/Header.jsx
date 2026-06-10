@@ -16,7 +16,7 @@ import {
     Email as EmailIcon,
     Menu as MenuIcon,
     Settings as SettingsIcon,
-    AdminPanelSettings as AdminIcon, // Added for Admin access
+    AdminPanelSettings as AdminIcon,
 } from '@mui/icons-material';
 import ThemeToggle from './util/ThemeToggle';
 import { ColorModeContext } from "./util/ThemeContext.jsx";
@@ -41,19 +41,8 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
     const hues = ['red', 'yellow', 'green', 'blue'];
     const [localHueIndex, setLocalHueIndex] = useState(0);
 
-    // Build dynamic navigation items based on role
-    const currentNavItems = [...navItems];
-    const isAdmin = user?.role.rank <= 1;
-
-    if (isAdmin) {
-        currentNavItems.push({
-            icon: <AdminIcon />,
-            text: 'Admin Panel',
-            href: '/admin',
-            className: 'bx bx-shield-quarter',
-            isRoute: true // Flag to use navigate() instead of anchor scroll
-        });
-    }
+    // Evaluate permissions for administrative features
+    const isTrusted = user?.role?.rank <= 4;
 
     const handleHueCycle = () => {
         const nextIndex = (localHueIndex + 1) % hues.length;
@@ -121,6 +110,7 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                 >
                     <EmailIcon />
                 </a>
+
                 <Box
                     onClick={(e) => e.preventDefault()}
                     style={circleButtonStyle(theme)}
@@ -143,6 +133,24 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                 >
                     {user ? <SettingsIcon/> : <PersonIcon/>}
                 </Box>
+
+                {/* Conditional Admin Circle Icon Link */}
+                {isTrusted && (
+                    <Box
+                        onClick={() => {
+                            navigate('/admin');
+                            if (isMobile) setMobileNavOpen(false);
+                        }}
+                        style={circleButtonStyle(theme)}
+                        onMouseEnter={handleHover(theme, true)}
+                        onMouseLeave={handleHover(theme, false)}
+                        role="button"
+                        tabIndex={0}
+                        title="Advanced Panel"
+                    >
+                        <AdminIcon />
+                    </Box>
+                )}
 
                 <Box
                     onClick={handleHueCycle}
@@ -181,11 +189,11 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
     const NavLinks = (
         <Box component="nav" id="navbar" className={`nav-menu navbar`}>
             <ul>
-                {currentNavItems.map(({text, href, className, isRoute }) => (
+                {navItems.map(({text, href, className}) => (
                     <li key={text}>
                         <Typography
                             component="a"
-                            href={isRoute ? undefined : href}
+                            href={href}
                             className="nav-link scrollto"
                             sx={{
                                 display: 'flex',
@@ -199,11 +207,7 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                                     color: theme.palette.textColors.link,
                                 },
                             }}
-                            onClick={(e) => {
-                                if (isRoute) {
-                                    e.preventDefault();
-                                    navigate(href);
-                                }
+                            onClick={() => {
                                 if (isMobile) setMobileNavOpen(false);
                             }}
                         >

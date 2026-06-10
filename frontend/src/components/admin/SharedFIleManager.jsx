@@ -233,7 +233,6 @@ const SharedFilesManager = ({ currentUser }) => {
                                     <MenuItem value="DEV">DEV</MenuItem>
                                     <MenuItem value="BOT">BOT</MenuItem>
                                     <MenuItem value="TRUSTED">TRUSTED</MenuItem>
-                                    <MenuItem value="AUTHENTICATED">AUTHED</MenuItem>
                                 </Select>
                             </FormControl>
                         ) : (

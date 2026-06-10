@@ -1,12 +1,6 @@
 // components/Index.jsx
-import React, { useEffect, useState } from "react";
-import {
-    CssBaseline,
-    GlobalStyles,
-    IconButton,
-    useTheme,
-    Box,
-} from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {Box, CssBaseline, GlobalStyles, IconButton, useTheme,} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import AOS from "aos";
@@ -19,7 +13,7 @@ import About from "./About.jsx";
 import Facts from "./Facts.jsx";
 import Resume from "./Resume.jsx";
 import Projects from "./Projects.jsx";
-import {Routes, Route, Navigate} from "react-router-dom";
+import {Navigate, Route, Routes} from "react-router-dom";
 import AuthPage from "./login/AuthPage.jsx";
 import {AuthProvider, useAuth} from "./login/AuthContext.jsx";
 import ProfilePage from "./login/ProfilePage.jsx";
@@ -96,13 +90,21 @@ function Home() {
  * A simple wrapper to protect routes that require a login.
  * If the user isn't logged in, it sends them to the /auth page.
  */
-const ProtectedRoute = ({ children }) => {
-
-    const { user, loading } = useAuth(); // Ensure your context provides a 'loading' state
-    const isAdminOrAbove = user?.role?.rank <= 1;
+const ProtectedRoute = ({ children, requiredRank }) => {
+    const { user, loading } = useAuth();
 
     if (loading) return <div>Checking session...</div>;
-    if (!isAdminOrAbove) {
+
+    // 1. If there is no user at all, send them to the login screen
+    if (!user) {
+        return <Navigate to="/auth" replace />;
+    }
+
+    // 2. If they are logged in, check their authorization level
+    const canAccess = user?.role?.rank <= requiredRank;
+
+    if (!canAccess) {
+        // Logged in but insufficient permissions -> kick back to home
         return <Navigate to="/" replace />;
     }
 
@@ -116,13 +118,36 @@ export default function Index() {
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />
                 <Route path="/auth" element={<AuthPage />} />
-                <Route path="/account" element={ <ProfilePage /> }/>
 
-                <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>}>
-                    <Route path="users" element={<UserManagement />} />
+                {/* Protected User Profile Route */}
+                <Route
+                    path="/account"
+                    element={
+                        <ProtectedRoute requiredRank={5}>
+                            <ProfilePage />
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Protected Admin/Layout Section */}
+                <Route
+                    path="/admin"
+                    element={
+                        <ProtectedRoute requiredRank={4}>
+                            <AdminPanel />
+                        </ProtectedRoute>
+                    }
+                >
+                    {/* Highly Restricted Child Route */}
+                    <Route
+                        path="users"
+                        element={
+                            <ProtectedRoute requiredRank={1}>
+                                <UserManagement />
+                            </ProtectedRoute>
+                        }
+                    />
                 </Route>
-
-                {/* Add more routes inside the Provider as needed */}
             </Routes>
         </AuthProvider>
     );

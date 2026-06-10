@@ -29,21 +29,20 @@ const AdminPanel = () => {
     const [activeTab, setActiveTab] = useState(0);
     const [mobileOpen, setMobileOpen] = useState(false);
     const { user } = useAuth();
+    const userRank = user?.role?.rank ?? 99; // Fallback to safe high number if undefined
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
 
+    // 1. Centralize requirements by attaching requiredRank directly to each menu structure
     const menuItems = [
-        { label: 'User Management', icon: <PeopleIcon />, index: 0 },
-        { label: 'FTP File Transfer', icon: <DashIcon />, index: 1 },
-        { label: 'Security Logs', icon: <SecurityIcon />, index: 2 },
+        { label: 'User Management', icon: <PeopleIcon />, index: 0, requiredRank: 1 }, // Admin Only
+        { label: 'FTP File Transfer', icon: <DashIcon />, index: 1, requiredRank: 4 },  // Trusted + Admin
     ];
 
-    // Extracted the menu list into a reusable variable to feed both desktop and mobile drawers
     const drawerContent = (
         <>
-            {/* Sidebar Top Header */}
             <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                 <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                     Admin Portal
@@ -55,16 +54,21 @@ const AdminPanel = () => {
 
             <Divider sx={{ borderColor: 'divider' }} />
 
-            {/* Navigation Links */}
             <List sx={{ px: 1.5, py: 2 }}>
                 {menuItems.map((item) => {
                     const isSelected = activeTab === item.index;
+
+                    // 2. Evaluate if the current logged-in user possesses the access rank required
+                    const hasAccess = userRank <= item.requiredRank;
+
                     return (
                         <ListItem key={item.index} disablePadding sx={{ mb: 0.5 }}>
                             <ListItemButton
+                                // 3. MUI's native disabled property automatically handles gray styling & disables clicks
+                                disabled={!hasAccess}
                                 onClick={() => {
                                     setActiveTab(item.index);
-                                    setMobileOpen(false); // Auto-close menu drawer when an item is selected on mobile
+                                    setMobileOpen(false);
                                 }}
                                 selected={isSelected}
                                 sx={{
@@ -108,6 +112,10 @@ const AdminPanel = () => {
         </>
     );
 
+    // 4. Secondary Guard: Extract permission check for whatever tab is currently active
+    const activeItem = menuItems.find(item => item.index === activeTab);
+    const canViewActiveTab = activeItem ? userRank <= activeItem.requiredRank : false;
+
     return (
         <Box
             sx={{
@@ -123,9 +131,7 @@ const AdminPanel = () => {
                 variant="temporary"
                 open={mobileOpen}
                 onClose={handleDrawerToggle}
-                ModalProps={{
-                    keepMounted: true, // Improves performance when rendering on mobile devices.
-                }}
+                ModalProps={{ keepMounted: true }}
                 sx={{
                     display: { xs: 'block', md: 'none' },
                     '& .MuiDrawer-paper': {
@@ -134,7 +140,7 @@ const AdminPanel = () => {
                         bgcolor: 'background.paper',
                         color: 'text.primary',
                         transition: 'background-color 1s ease',
-                        backgroundImage: 'none' // Fixes weird elevation tints in dark mode
+                        backgroundImage: 'none'
                     },
                 }}
             >
@@ -166,7 +172,7 @@ const AdminPanel = () => {
             <Box
                 sx={{
                     flexGrow: 1,
-                    p: { xs: 2, sm: 3, md: 4 }, // Fluid padding reduces footprint on small viewports
+                    p: { xs: 2, sm: 3, md: 4 },
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 3,
@@ -177,8 +183,6 @@ const AdminPanel = () => {
                 {/* Top Action Ribbon */}
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
-
-                        {/* Hamburger Button visible only on mobile (below md breakpoint) */}
                         <IconButton
                             color="inherit"
                             aria-label="open drawer"
@@ -192,23 +196,16 @@ const AdminPanel = () => {
                         <BackButton to="/" />
                         <Typography
                             variant="h5"
-                            sx={{
-                                fontWeight: 'bold',
-                                fontSize: { xs: '1.2rem', sm: '1.5rem' } // Scaled font down slightly on small phones
-                            }}
+                            sx={{ fontWeight: 'bold', fontSize: { xs: '1.2rem', sm: '1.5rem' } }}
                         >
-                            {menuItems[activeTab].label}
+                            {activeItem?.label || "Admin Panel"}
                         </Typography>
                     </Box>
 
-                    {/* Hides metadata tags entirely on narrow viewports to avoid overlapping titles */}
                     <Typography
                         variant="body2"
                         color="text.secondary"
-                        sx={{
-                            display: { xs: 'none', lg: 'block' },
-                            textAlign: 'right'
-                        }}
+                        sx={{ display: { xs: 'none', lg: 'block' }, textAlign: 'right' }}
                     >
                         {user?.role?.role} • {user?.role?.description}
                     </Typography>
@@ -218,7 +215,7 @@ const AdminPanel = () => {
                 <Paper
                     elevation={0}
                     sx={{
-                        p: { xs: 2, sm: 3 }, // Compact internal spacing on mobile layout
+                        p: { xs: 2, sm: 3 },
                         borderRadius: 3,
                         bgcolor: 'background.paper',
                         border: '1px solid',
@@ -226,12 +223,21 @@ const AdminPanel = () => {
                         minHeight: '70vh',
                         color: 'text.primary',
                         transition: 'background-color 1s ease, border-color 1s ease',
-                        overflowX: 'auto' // Prevents wide user tables from breaking layout
+                        overflowX: 'auto'
                     }}
                 >
-                    {activeTab === 0 && <UserManagement currentUser={user} />}
-                    {activeTab === 1 && <SharedFilesManager currentUser={user} />}
-                    {activeTab === 2 && <Typography color="text.secondary">Audit logs coming soon...</Typography>}
+                    {/* 5. Check if they have access to the current active tab state. If false, block render */}
+                    {!canViewActiveTab ? (
+                        <Typography color="error">
+                            You do not have permission to view this section.
+                        </Typography>
+                    ) : (
+                        <>
+                            {activeTab === 0 && <UserManagement currentUser={user} />}
+                            {activeTab === 1 && <SharedFilesManager currentUser={user} />}
+                            {activeTab === 2 && <Typography color="text.secondary">Audit logs coming soon...</Typography>}
+                        </>
+                    )}
                 </Paper>
             </Box>
         </Box>
