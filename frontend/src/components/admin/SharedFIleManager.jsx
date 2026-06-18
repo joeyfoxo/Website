@@ -28,7 +28,7 @@ import {UserRole} from "../login/UserRole.ts";
 const SharedFilesManager = ({ currentUser }) => {
 
     const [files, setFiles] = useState([]);
-    const [selectedRole, setSelectedRole] = useState(null);
+    const [selectedRole, setSelectedRole] = useState(currentUser.role.role);
 
     // --- PATH NAVIGATION STATE ---
     // Tracks current nested path as an array: e.g., ['documents', 'images']
