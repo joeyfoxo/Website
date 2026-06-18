@@ -22,8 +22,33 @@ import {
     renameFile,
     createFolder,
 } from '../api/api.js';
-import { isUserEqualAbove, generateFileId, parseFileId } from "../util/Util.jsx";
+import { isUserEqualAbove } from "../util/Util.jsx";
 import { UserRole } from "../login/UserRole.ts";
+
+// ==========================================
+// 🛠️ LINK MASKING UTILITY FUNCTIONS
+// ==========================================
+
+const generateFileId = (file, role, pathString) => {
+    const filePayload = {
+        filename: file.fullName,
+        displayName: file.displayName,
+        role: role,
+        path: pathString
+    };
+    const jsonString = JSON.stringify(filePayload);
+    return btoa(unescape(encodeURIComponent(jsonString)));
+};
+
+const parseFileId = (fileId) => {
+    try {
+        const decodedJson = decodeURIComponent(escape(atob(fileId)));
+        return JSON.parse(decodedJson);
+    } catch (error) {
+        console.error("Failed to parse fileId:", error);
+        return null;
+    }
+};
 
 // ==========================================
 // 📦 MAIN COMPONENT
@@ -63,6 +88,10 @@ const SharedFilesManager = ({ currentUser }) => {
     }, [selectedRole, getPathString]);
 
 
+    // ==========================================
+    // 🔄 CONSOLIDATED LIFECYCLE HOOKS
+    // ==========================================
+
     // HOOK 1: Page-Load Link Interceptor (Runs exactly once on mount)
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -84,9 +113,11 @@ const SharedFilesManager = ({ currentUser }) => {
     useEffect(() => {
         // Step A: Safely extract string if currentUser.role is an object context containing {role, description, rank}
         if (currentUser && !selectedRole) {
-            const userRole = currentUser.role.role;
+            const roleString = typeof currentUser.role === 'object'
+                ? currentUser.role.role
+                : currentUser.role;
 
-            setSelectedRole(userRole || UserRole.TRUSTED);
+            setSelectedRole(roleString || "TRUSTED");
         }
         // Step B: If the workspace role is already configured, fetch the corresponding files
         else if (selectedRole) {
