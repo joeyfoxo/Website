@@ -13,7 +13,7 @@ import {
     NavigateNext as NavigateNextIcon, ContentCopy
 } from '@mui/icons-material';
 
-// Target your API layer handlers
+// Target your API layer handlers (including your folder operations)
 import {
     uploadFile,
     fetchFilesByRole,
@@ -22,41 +22,16 @@ import {
     renameFile,
     createFolder,
 } from '../api/api.js';
-import { isUserEqualAbove } from "../util/Util.jsx";
-import { UserRole } from "../login/UserRole.ts";
+import {isUserEqualAbove} from "../util/Util.jsx";
+import {UserRole} from "../login/UserRole.ts";
 
-// ==========================================
-// 🛠️ LINK MASKING UTILITY FUNCTIONS
-// ==========================================
-
-const generateFileId = (file, role, pathString) => {
-    const filePayload = {
-        filename: file.fullName,
-        displayName: file.displayName,
-        role: role,
-        path: pathString
-    };
-    const jsonString = JSON.stringify(filePayload);
-    return btoa(unescape(encodeURIComponent(jsonString)));
-};
-
-const parseFileId = (fileId) => {
-    try {
-        const decodedJson = decodeURIComponent(escape(atob(fileId)));
-        return JSON.parse(decodedJson);
-    } catch (error) {
-        console.error("Failed to parse fileId:", error);
-        return null;
-    }
-};
-
-// ==========================================
-// 📦 MAIN COMPONENT
-// ==========================================
 const SharedFilesManager = ({ currentUser }) => {
 
     const [files, setFiles] = useState([]);
     const [selectedRole, setSelectedRole] = useState(null);
+
+    // --- PATH NAVIGATION STATE ---
+    // Tracks current nested path as an array: e.g., ['documents', 'images']
     const [currentPath, setCurrentPath] = useState([]);
 
     // UI States
@@ -66,18 +41,21 @@ const SharedFilesManager = ({ currentUser }) => {
     const [isUploading, setIsUploading] = useState(false);
     const [isDragActive, setIsDragActive] = useState(false);
 
-    // Modal & Inline Editing States
+    // Folder Creation Modal States
     const [folderModalOpen, setFolderModalOpen] = useState(false);
     const [newFolderName, setNewFolderName] = useState("");
+
+    // Inline Renaming Trackers
     const [editingFilename, setEditingFilename] = useState(null);
     const [newNameInput, setNewNameInput] = useState("");
 
+    // Helper to turn array path into string key for backend context
     const getPathString = useCallback(() => currentPath.join('/'), [currentPath]);
 
     const loadFilesList = useCallback(async () => {
-        if (!selectedRole) return;
         setIsLoading(true);
         try {
+            // Pass the target role partition AND the current active subpath string
             const data = await fetchFilesByRole(selectedRole, getPathString());
             setFiles(data || []);
         } catch (error) {
@@ -87,62 +65,25 @@ const SharedFilesManager = ({ currentUser }) => {
         }
     }, [selectedRole, getPathString]);
 
-
-    // ==========================================
-    // 🔄 CONSOLIDATED LIFECYCLE HOOKS
-    // ==========================================
-
-    // HOOK 1: Page-Load Link Interceptor (Runs exactly once on mount)
     useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const fileId = urlParams.get('fileId');
-
-        if (!fileId) return;
-
-        const fileData = parseFileId(fileId);
-        if (fileData) {
-            window.history.replaceState({}, document.title, window.location.pathname);
-            setStatus({ type: 'success', message: `Initializing direct download for "${fileData.displayName}"...` });
-            downloadFile(fileData.filename, fileData.displayName, fileData.role, fileData.path);
-        } else {
-            setStatus({ type: 'error', message: "The shared link is invalid or expired." });
-        }
-    }, []);
-
-    // HOOK 2: Workspace Sync & Directory Loading
-    useEffect(() => {
-        // Step A: Safely extract string if currentUser.role is an object context containing {role, description, rank}
-        if (currentUser && !selectedRole) {
-            const roleString = typeof currentUser.role === 'object'
-                ? currentUser.role.role
-                : currentUser.role;
-
-            setSelectedRole(roleString || "TRUSTED");
-        }
-        // Step B: If the workspace role is already configured, fetch the corresponding files
-        else if (selectedRole) {
-            loadFilesList();
-        }
-    }, [currentUser, selectedRole, loadFilesList]);
-
-
-    // ==========================================
-    // 🛠️ HANDLERS & OPERATIONS
-    // ==========================================
+        loadFilesList();
+    }, [loadFilesList]);
 
     const handleRoleDirectoryChange = (e) => {
         setSelectedRole(e.target.value);
-        setCurrentPath([]);
+        setCurrentPath([]); // Reset to root of new partition node
         setEditingFilename(null);
         setStatus({ type: '', message: '' });
     };
 
+    // --- NAVIGATIONAL DRILL-DOWN ---
     const handleFolderClick = (folderName) => {
         setCurrentPath((prev) => [...prev, folderName]);
         setEditingFilename(null);
     };
 
     const handleBreadcrumbClick = (index) => {
+        // Slice path array back to targeted index marker
         setCurrentPath((prev) => prev.slice(0, index + 1));
         setEditingFilename(null);
     };
@@ -152,6 +93,7 @@ const SharedFilesManager = ({ currentUser }) => {
         setEditingFilename(null);
     };
 
+    // --- DIR OPERATIONS ---
     const handleCreateFolder = async () => {
         if (!newFolderName.trim()) return;
         try {
@@ -171,6 +113,7 @@ const SharedFilesManager = ({ currentUser }) => {
         setStatus({ type: '', message: '' });
 
         try {
+            // Pass sub-path location along with file payload context
             await uploadFile(stagedFile, selectedRole, getPathString());
             setStatus({ type: 'success', message: "File uploaded successfully." });
             setStagedFile(null);
@@ -216,15 +159,21 @@ const SharedFilesManager = ({ currentUser }) => {
 
     const handleDirectDownloadLink = async (file) => {
         try {
-            const fileId = generateFileId(file, selectedRole, getPathString());
-            const directDownloadUrl = `${window.location.origin}?fileId=${fileId}`;
+
+            const baseUrl = window.location.origin;
+            const encodedFilename = encodeURIComponent(file.fullName);
+            const encodedRole = encodeURIComponent(selectedRole);
+            const encodedPath = encodeURIComponent(getPathString());
+
+            const directDownloadUrl = `${baseUrl}/api/files/download/${encodedFilename}?role=${encodedRole}&path=${encodedPath}`;
 
             await navigator.clipboard.writeText(directDownloadUrl);
 
             setStatus({
                 type: 'success',
-                message: `Masked direct link for "${file.displayName}" copied to clipboard!`
+                message: `Direct download link for "${file.displayName}" copied to clipboard!`
             });
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
             setStatus({
                 type: 'error',
@@ -299,7 +248,7 @@ const SharedFilesManager = ({ currentUser }) => {
                                 <InputLabel id="storage-node-select-label">Active Node</InputLabel>
                                 <Select
                                     labelId="storage-node-select-label"
-                                    value={selectedRole || ''}
+                                    value={selectedRole}
                                     label="Active Node"
                                     onChange={handleRoleDirectoryChange}
                                     sx={{ borderRadius: 2 }}
@@ -314,7 +263,7 @@ const SharedFilesManager = ({ currentUser }) => {
                         ) : (
                             <Box sx={{ px: 2, py: 0.5, bgcolor: 'action.selected', borderRadius: 2, border: '1px solid divider' }}>
                                 <Typography variant="caption" color="text.secondary" display="block">Partition</Typography>
-                                <Typography variant="body2" sx={{ fontWeight: 600 }}>{selectedRole || 'Loading...'}</Typography>
+                                <Typography variant="body2" sx={{ fontWeight: 600 }}>{selectedRole}</Typography>
                             </Box>
                         )}
 
@@ -340,7 +289,7 @@ const SharedFilesManager = ({ currentUser }) => {
                             onClick={handleNavigateToRoot}
                             sx={{ fontWeight: currentPath.length === 0 ? 600 : 400, border: 'none', background: 'none', cursor: 'pointer' }}
                         >
-                            {selectedRole || 'Root'} (Root)
+                            {selectedRole} (Root)
                         </Link>
                         {currentPath.map((folder, index) => {
                             const isLast = index === currentPath.length - 1;
@@ -430,6 +379,7 @@ const SharedFilesManager = ({ currentUser }) => {
                                                 ) : (
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                                         {file.isFolder ? (
+                                                            // Clicking on folders triggers navigation down the path array tree
                                                             <Link component="button" color="primary" onClick={() => handleFolderClick(file.displayName)} sx={{ display: 'flex', alignItems: 'center', gap: 1, textDecoration: 'none', fontWeight: 600, border: 'none', background: 'none', cursor: 'pointer', p: 0 }}>
                                                                 <FolderIcon sx={{ color: '#ffa726' }} fontSize="small" />
                                                                 {file.displayName}
@@ -465,7 +415,7 @@ const SharedFilesManager = ({ currentUser }) => {
                                                                 <IconButton color="error" size="small" onClick={() => handleDelete(file)} title="Delete"><DeleteIcon fontSize="small" /></IconButton>
                                                             )}
                                                             {isUserEqualAbove(currentUser, UserRole.TRUSTED) && (
-                                                                <IconButton color="success" size="small" onClick={() => handleDirectDownloadLink(file)} title="Copy Direct Link"><ContentCopy fontSize="small" /></IconButton>
+                                                                <IconButton color="success" size="small" onClick={() => handleDirectDownloadLink(file)} title="Delete"><ContentCopy  fontSize="small" /></IconButton>
                                                             )}
                                                         </>
                                                     )}
