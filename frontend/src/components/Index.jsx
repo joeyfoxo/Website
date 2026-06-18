@@ -19,6 +19,7 @@ import {AuthProvider, useAuth} from "./login/AuthContext.jsx";
 import ProfilePage from "./login/ProfilePage.jsx";
 import UserManagement from "./admin/UserManagement.jsx";
 import AdminPanel from "./admin/AdminPanel.jsx";
+import {isUserEqualAbove} from "./util/Util.jsx";
 
 function Home() {
     // This is your original homepage content
@@ -96,12 +97,7 @@ const ProtectedRoute = ({ children, requiredRank }) => {
     if (loading) return <div>Checking session...</div>;
 
     // 1. If there is no user at all, send them to the login screen
-    if (!user) {
-        return <Navigate to="/auth" replace />;
-    }
-
-    // 2. If they are logged in, check their authorization level
-    const canAccess = user?.role?.rank <= requiredRank;
+    const canAccess = isUserEqualAbove(user, requiredRank);
 
     if (!canAccess) {
         // Logged in but insufficient permissions -> kick back to home

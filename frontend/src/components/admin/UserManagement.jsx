@@ -8,6 +8,7 @@ import { fetchAllUsers, updateUserRole, deleteProfile } from '../api/api.js';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
 import UndoIcon from '@mui/icons-material/Undo';
+import {getRoleColor} from "../util/Util.jsx";
 
 const UserManagement = ({ currentUser }) => {
     const [users, setUsers] = useState([]);
@@ -112,7 +113,6 @@ const UserManagement = ({ currentUser }) => {
                                     key={user.email}
                                     hover
                                     sx={{
-                                        // Soft blue tint to highlight rows with unsaved changes
                                         bgcolor: isRoleChanged ? 'action.selected' : 'inherit',
                                         transition: 'background-color 0.2s ease'
                                     }}
@@ -127,11 +127,11 @@ const UserManagement = ({ currentUser }) => {
                                         </Typography>
                                     </TableCell>
 
-                                    {/* CURRENT CHIP STATUS */}
+                                    {/* CURRENT CHIP STATUS CELL */}
                                     <TableCell>
                                         <Chip
                                             label={user.role.role}
-                                            color={user.role.rank === 0 ? 'secondary' : 'primary'}
+                                            color={getRoleColor(user.role.role)}
                                             variant={isRoleChanged ? 'outlined' : 'filled'}
                                             size="small"
                                         />

@@ -10,28 +10,28 @@ import {
     Download as DownloadIcon, Refresh as RefreshIcon, Close as CloseIcon,
     Delete as DeleteIcon, Edit as EditIcon, Check as CheckIcon,
     Folder as FolderIcon, CreateNewFolder as NewFolderIcon,
-    NavigateNext as NavigateNextIcon
+    NavigateNext as NavigateNextIcon, ContentCopy
 } from '@mui/icons-material';
 
-// Target your API layer handlers (including your folder operations)
+// Target your API layer handlers
 import {
     uploadFile,
     fetchFilesByRole,
     downloadFile,
     deleteFile,
     renameFile,
-    createFolder
+    createFolder,
 } from '../api/api.js';
+import { isUserEqualAbove, generateFileId, parseFileId } from "../util/Util.jsx";
+import { UserRole } from "../login/UserRole.ts";
 
+// ==========================================
+// 📦 MAIN COMPONENT
+// ==========================================
 const SharedFilesManager = ({ currentUser }) => {
-    const isAdminOrAbove = currentUser?.role?.rank <= 1;
-    const initialRole = currentUser?.role?.role || 'AUTHENTICATED';
 
     const [files, setFiles] = useState([]);
-    const [selectedRole, setSelectedRole] = useState(initialRole);
-
-    // --- PATH NAVIGATION STATE ---
-    // Tracks current nested path as an array: e.g., ['documents', 'images']
+    const [selectedRole, setSelectedRole] = useState(null);
     const [currentPath, setCurrentPath] = useState([]);
 
     // UI States
@@ -41,21 +41,18 @@ const SharedFilesManager = ({ currentUser }) => {
     const [isUploading, setIsUploading] = useState(false);
     const [isDragActive, setIsDragActive] = useState(false);
 
-    // Folder Creation Modal States
+    // Modal & Inline Editing States
     const [folderModalOpen, setFolderModalOpen] = useState(false);
     const [newFolderName, setNewFolderName] = useState("");
-
-    // Inline Renaming Trackers
     const [editingFilename, setEditingFilename] = useState(null);
     const [newNameInput, setNewNameInput] = useState("");
 
-    // Helper to turn array path into string key for backend context
     const getPathString = useCallback(() => currentPath.join('/'), [currentPath]);
 
     const loadFilesList = useCallback(async () => {
+        if (!selectedRole) return;
         setIsLoading(true);
         try {
-            // Pass the target role partition AND the current active subpath string
             const data = await fetchFilesByRole(selectedRole, getPathString());
             setFiles(data || []);
         } catch (error) {
@@ -65,25 +62,56 @@ const SharedFilesManager = ({ currentUser }) => {
         }
     }, [selectedRole, getPathString]);
 
+
+    // HOOK 1: Page-Load Link Interceptor (Runs exactly once on mount)
     useEffect(() => {
-        loadFilesList();
-    }, [loadFilesList]);
+        const urlParams = new URLSearchParams(window.location.search);
+        const fileId = urlParams.get('fileId');
+
+        if (!fileId) return;
+
+        const fileData = parseFileId(fileId);
+        if (fileData) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+            setStatus({ type: 'success', message: `Initializing direct download for "${fileData.displayName}"...` });
+            downloadFile(fileData.filename, fileData.displayName, fileData.role, fileData.path);
+        } else {
+            setStatus({ type: 'error', message: "The shared link is invalid or expired." });
+        }
+    }, []);
+
+    // HOOK 2: Workspace Sync & Directory Loading
+    useEffect(() => {
+        // Step A: Safely extract string if currentUser.role is an object context containing {role, description, rank}
+        if (currentUser && !selectedRole) {
+            const userRole = currentUser.role.role;
+
+            setSelectedRole(userRole || UserRole.TRUSTED);
+        }
+        // Step B: If the workspace role is already configured, fetch the corresponding files
+        else if (selectedRole) {
+            loadFilesList();
+        }
+    }, [currentUser, selectedRole, loadFilesList]);
+
+
+    // ==========================================
+    // 🛠️ HANDLERS & OPERATIONS
+    // ==========================================
 
     const handleRoleDirectoryChange = (e) => {
         setSelectedRole(e.target.value);
-        setCurrentPath([]); // Reset to root of new partition node
+        setCurrentPath([]);
         setEditingFilename(null);
         setStatus({ type: '', message: '' });
     };
 
-    // --- NAVIGATIONAL DRILL-DOWN ---
     const handleFolderClick = (folderName) => {
         setCurrentPath((prev) => [...prev, folderName]);
         setEditingFilename(null);
     };
 
     const handleBreadcrumbClick = (index) => {
-        // Slice path array back to targeted index marker
         setCurrentPath((prev) => prev.slice(0, index + 1));
         setEditingFilename(null);
     };
@@ -93,7 +121,6 @@ const SharedFilesManager = ({ currentUser }) => {
         setEditingFilename(null);
     };
 
-    // --- DIR OPERATIONS ---
     const handleCreateFolder = async () => {
         if (!newFolderName.trim()) return;
         try {
@@ -113,7 +140,6 @@ const SharedFilesManager = ({ currentUser }) => {
         setStatus({ type: '', message: '' });
 
         try {
-            // Pass sub-path location along with file payload context
             await uploadFile(stagedFile, selectedRole, getPathString());
             setStatus({ type: 'success', message: "File uploaded successfully." });
             setStagedFile(null);
@@ -154,6 +180,25 @@ const SharedFilesManager = ({ currentUser }) => {
             setStatus({ type: 'success', message: "Rename completed successfully." });
         } catch (error) {
             setStatus({ type: 'error', message: error.message || "Rename failed." });
+        }
+    };
+
+    const handleDirectDownloadLink = async (file) => {
+        try {
+            const fileId = generateFileId(file, selectedRole, getPathString());
+            const directDownloadUrl = `${window.location.origin}?fileId=${fileId}`;
+
+            await navigator.clipboard.writeText(directDownloadUrl);
+
+            setStatus({
+                type: 'success',
+                message: `Masked direct link for "${file.displayName}" copied to clipboard!`
+            });
+        } catch (error) {
+            setStatus({
+                type: 'error',
+                message: "Failed to copy the link to clipboard."
+            });
         }
     };
 
@@ -206,7 +251,7 @@ const SharedFilesManager = ({ currentUser }) => {
                     </Box>
 
                     <Stack direction="row" gap={1.5} sx={{ width: { xs: '100%', sm: 'auto' }, alignItems: 'center' }}>
-                        {isAdminOrAbove && (
+                        {isUserEqualAbove(currentUser, UserRole.ADMIN) && (
                             <Button
                                 variant="contained"
                                 color="success"
@@ -218,12 +263,12 @@ const SharedFilesManager = ({ currentUser }) => {
                             </Button>
                         )}
 
-                        {isAdminOrAbove ? (
+                        {isUserEqualAbove(currentUser, UserRole.ADMIN) ? (
                             <FormControl size="small" sx={{ minWidth: 160 }}>
                                 <InputLabel id="storage-node-select-label">Active Node</InputLabel>
                                 <Select
                                     labelId="storage-node-select-label"
-                                    value={selectedRole}
+                                    value={selectedRole || ''}
                                     label="Active Node"
                                     onChange={handleRoleDirectoryChange}
                                     sx={{ borderRadius: 2 }}
@@ -238,7 +283,7 @@ const SharedFilesManager = ({ currentUser }) => {
                         ) : (
                             <Box sx={{ px: 2, py: 0.5, bgcolor: 'action.selected', borderRadius: 2, border: '1px solid divider' }}>
                                 <Typography variant="caption" color="text.secondary" display="block">Partition</Typography>
-                                <Typography variant="body2" sx={{ fontWeight: 600 }}>{selectedRole}</Typography>
+                                <Typography variant="body2" sx={{ fontWeight: 600 }}>{selectedRole || 'Loading...'}</Typography>
                             </Box>
                         )}
 
@@ -264,7 +309,7 @@ const SharedFilesManager = ({ currentUser }) => {
                             onClick={handleNavigateToRoot}
                             sx={{ fontWeight: currentPath.length === 0 ? 600 : 400, border: 'none', background: 'none', cursor: 'pointer' }}
                         >
-                            {selectedRole} (Root)
+                            {selectedRole || 'Root'} (Root)
                         </Link>
                         {currentPath.map((folder, index) => {
                             const isLast = index === currentPath.length - 1;
@@ -354,7 +399,6 @@ const SharedFilesManager = ({ currentUser }) => {
                                                 ) : (
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                                         {file.isFolder ? (
-                                                            // Clicking on folders triggers navigation down the path array tree
                                                             <Link component="button" color="primary" onClick={() => handleFolderClick(file.displayName)} sx={{ display: 'flex', alignItems: 'center', gap: 1, textDecoration: 'none', fontWeight: 600, border: 'none', background: 'none', cursor: 'pointer', p: 0 }}>
                                                                 <FolderIcon sx={{ color: '#ffa726' }} fontSize="small" />
                                                                 {file.displayName}
@@ -380,14 +424,17 @@ const SharedFilesManager = ({ currentUser }) => {
                                                         </>
                                                     ) : (
                                                         <>
-                                                            {isAdminOrAbove && (
+                                                            {isUserEqualAbove(currentUser, UserRole.DEV) && (
                                                                 <IconButton color="warning" size="small" onClick={() => startRename(file)} title="Rename"><EditIcon fontSize="small" /></IconButton>
                                                             )}
                                                             {!file.isFolder && (
                                                                 <IconButton color="primary" size="small" onClick={() => handleDownload(file.fullName, file.displayName)} title="Download"><DownloadIcon fontSize="small" /></IconButton>
                                                             )}
-                                                            {isAdminOrAbove && (
+                                                            {isUserEqualAbove(currentUser, UserRole.ADMIN) && (
                                                                 <IconButton color="error" size="small" onClick={() => handleDelete(file)} title="Delete"><DeleteIcon fontSize="small" /></IconButton>
+                                                            )}
+                                                            {isUserEqualAbove(currentUser, UserRole.TRUSTED) && (
+                                                                <IconButton color="success" size="small" onClick={() => handleDirectDownloadLink(file)} title="Copy Direct Link"><ContentCopy fontSize="small" /></IconButton>
                                                             )}
                                                         </>
                                                     )}

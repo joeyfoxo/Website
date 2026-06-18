@@ -12,7 +12,7 @@ import {
     Paper,
     IconButton,
     useTheme,
-    Stack
+    Stack, Chip
 } from '@mui/material';
 import {
     People as PeopleIcon,
@@ -24,6 +24,7 @@ import { useAuth } from '../login/AuthContext.jsx';
 import BackButton from "../button/BackButton.jsx";
 import SharedFilesManager from "./SharedFIleManager.jsx";
 import LogoutButton from "../button/LogoutButton.jsx";
+import {getRoleColor} from "../util/Util.jsx";
 
 const DRAWER_WIDTH = 260;
 
@@ -47,7 +48,13 @@ const AdminPanel = () => {
                     Control Panel
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                    {user?.username}
+                    {user?.username} ·
+                    <Chip
+                    label={user.role.role}                  // Displays the string text (e.g. "ADMIN")
+                    color={getRoleColor(user.role.role)}    // Spits out the unique palette color dynamically
+                    variant="filled"                        // Can be "filled" or "outlined"
+                    size="small"                            // Keeps the chip compact for table row heights
+                />
                 </Typography>
             </Box>
             <Divider />
@@ -108,16 +115,13 @@ const AdminPanel = () => {
                     </Stack>
 
                     <Stack direction="row" alignItems="center" spacing={2} sx={{ flexShrink: 0 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ display: { xs: 'none', lg: 'block' } }}>
-                            {user?.role?.role}
-                        </Typography>
                             <LogoutButton />
                     </Stack>
                 </Box>
 
                 <Paper elevation={0} sx={{ p: 3, borderRadius: 3, border: '1px solid', borderColor: 'divider', minHeight: '70vh' }}>
                     {!canViewActiveTab ? (
-                        <Typography color="error">Permission denied.</Typography>
+                        <Typography color="error"></Typography>
                     ) : (
                         <>
                             {activeTab === 0 && <UserManagement currentUser={user} />}

@@ -15,13 +15,14 @@ import {
     Work as WorkIcon,
     Email as EmailIcon,
     Menu as MenuIcon,
-    Settings as SettingsIcon,
     AdminPanelSettings as AdminIcon,
 } from '@mui/icons-material';
 import ThemeToggle from './util/ThemeToggle';
 import { ColorModeContext } from "./util/ThemeContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./login/AuthContext.jsx";
+import {isUserEqualAbove} from "./util/Util.jsx";
+import { UserRole } from './login/UserRole';
 
 const navItems = [
     { icon: <HomeIcon />, text: 'Home', href: '#hero', className: 'bx bx-home' },
@@ -114,14 +115,17 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                 >
                     <ThemeToggle />
                 </Box>
-
                 {/* --- MERGED LOGIN/ADMIN BUTTON --- */}
                 <Box
                     onClick={() => {
-                        if (user) {
+                        if (!user) {
+                            // 1. Not logged in? Send to auth page
+                            navigate('/auth');
+                        } else if (isUserEqualAbove(user, UserRole.TRUSTED)) {
                             navigate('/admin');
                         } else {
-                            navigate('/auth');
+                            // 3. Logged in but below Admin (e.g. AUTHENTICATED)? Send to profile/success page
+                            navigate('/account'); // Change this path to match your actual profile route (e.g., '/profile' or '/success')
                         }
                         if (isMobile) setMobileNavOpen(false);
                     }}
@@ -130,7 +134,7 @@ export default function Header({ mobileNavOpen, setMobileNavOpen }) {
                     onMouseLeave={handleHover(theme, false)}
                     role="button"
                     tabIndex={0}
-                    title={user ? "Control Panel" : "Login"}
+                    title={user ? (isUserEqualAbove(user, UserRole.TRUSTED) ? "Control Panel" : "Profile") : "Login"}
                 >
                     {user ? <AdminIcon /> : <PersonIcon />}
                 </Box>
