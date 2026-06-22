@@ -15,11 +15,11 @@ import Resume from "./Resume.jsx";
 import Projects from "./Projects.jsx";
 import {Navigate, Route, Routes} from "react-router-dom";
 import AuthPage from "./login/AuthPage.jsx";
-import {AuthProvider, useAuth} from "./login/AuthContext.jsx";
 import ProfilePage from "./login/ProfilePage.jsx";
 import UserManagement from "./admin/UserManagement.jsx";
 import AdminPanel from "./admin/AdminPanel.jsx";
 import {isUserEqualAbove} from "./util/Util.jsx";
+import {AuthProvider, useAuth} from "../context/AuthContext.jsx";
 
 function Home() {
     // This is your original homepage content

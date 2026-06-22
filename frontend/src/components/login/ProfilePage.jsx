@@ -5,10 +5,10 @@ import {
 } from "@mui/material";
 import { Email, Security } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
-import { getProfile } from "../api/api.js";
-import { useAuth } from "./AuthContext.jsx";
-import BackButton from "../button/BackButton.jsx";
-import LogoutButton from "../button/LogoutButton.jsx";
+import {useAuth} from "../../context/AuthContext.jsx";
+import {getProfile} from "../../api/api.js";
+import LogoutButton from "../util/LogoutButton.jsx";
+import BackButton from "../util/BackButton.jsx";
 
 const pageVariants = {
     initial: { opacity: 0, y: 20 },

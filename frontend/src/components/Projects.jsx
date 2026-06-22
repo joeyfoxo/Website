@@ -3,7 +3,7 @@ import '../assets/css/style.css';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useTheme } from "@mui/material";
-import RoundedButton from "./button/RoundedButton.jsx";
+import RoundedButton from "./util/RoundedButton.jsx";
 
 function Projects() {
     const theme = useTheme();

@@ -1,10 +1,10 @@
 package dev.joeyfoxo.webbackend.controller;
 
 import dev.joeyfoxo.webbackend.dto.FileResponse;
-import dev.joeyfoxo.webbackend.models.User;
-import dev.joeyfoxo.webbackend.models.UserRepository;
-import dev.joeyfoxo.webbackend.models.UserRole;
+import dev.joeyfoxo.webbackend.models.*;
 import dev.joeyfoxo.webbackend.service.FileStorageService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,19 +15,26 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/files")
-public class FileUploadController {
+public class FileController {
 
     private final FileStorageService fileStorageService;
     private final UserRepository userRepository;
 
-    public FileUploadController(FileStorageService fileStorageService, UserRepository userRepository) {
+    public FileController(FileStorageService fileStorageService, UserRepository userRepository, FileShareRepository fileShareRepository) {
         this.fileStorageService = fileStorageService;
         this.userRepository = userRepository;
+        this.fileShareRepository = fileShareRepository;
     }
 
     @GetMapping
@@ -82,7 +89,7 @@ public class FileUploadController {
     }
 
     @PostMapping("/upload")
-    @PreAuthorize("@securityService.isBotOrAbove(authentication)")
+    @PreAuthorize("@securityService.isTrustedOrAbove(authentication)")
     public ResponseEntity<?> uploadFile(
             @RequestParam("file") MultipartFile file,
             @RequestParam(required = false) UserRole role, // Enabled role switching on upload
@@ -135,6 +142,7 @@ public class FileUploadController {
     }
 
     @DeleteMapping("/delete/{filename}")
+    @PreAuthorize("@securityService.isAdminOrAbove(authentication)")
     public ResponseEntity<?> deleteFile(
             @PathVariable String filename,
             @RequestParam(required = false) UserRole role,
@@ -167,6 +175,7 @@ public class FileUploadController {
     }
 
     @PutMapping("/rename")
+    @PreAuthorize("@securityService.isDevOrAbove(authentication)")
     public ResponseEntity<?> renameFile(@RequestBody Map<String, String> request, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -199,6 +208,63 @@ public class FileUploadController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Rename failed: " + e.getMessage()));
         }
+    }
+
+    private final FileShareRepository fileShareRepository;
+
+    /**
+     * Protected Route: Generates a DB record and returns the UUID string.
+     * Secure this endpoint using your existing Spring Security setup.
+     */
+    @PostMapping("/share")
+    @PreAuthorize("@securityService.isAdminOrAbove(authentication)")
+    public ResponseEntity<?> generateShareToken(@RequestBody Map<String, String> request) {
+        String filename = request.get("fullName");
+        UserRole role = UserRole.getRoleByName(request.get("role"));
+        // Validation guard
+        if (filename == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Missing required fields for file sharing."));
+        }
+
+        try {
+            LocalDateTime expiresAt = LocalDateTime.now().plusHours(24);
+            FileShare fileShare = new FileShare(filename,role, expiresAt);
+            FileShare savedShare = fileShareRepository.save(fileShare);
+            return ResponseEntity.ok(Map.of("shareToken", savedShare.getId().toString()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Unprotected Route: PUBLIC download via tracking UUID token.
+     * Ensure your Spring Security config permits all requests to this pattern.
+     */
+
+    //TODO: ADD ROLE TO REDUCE NEEDING TO SEARCH
+    @GetMapping("/public/download/{token}")
+    public ResponseEntity<Resource> downloadPublicFile(@PathVariable String token) throws FileNotFoundException {
+        // 1. Find the share record via your current database setup
+        FileShare share = fileShareRepository.findById(UUID.fromString(token))
+                .orElseThrow(() -> new FileNotFoundException("Invalid or expired link."));
+
+        UserRole role = share.getRole();
+
+        System.out.println("Attempting to serve public download for file: " + share.getFilename() + " with role: " + role);
+
+        // 2. Check expiration
+        if (share.getExpiresAt().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.status(HttpStatus.GONE).build();
+
+        }
+
+        // 3. Scan /app/storage dynamically using the service mapping
+        Resource resource = fileStorageService.loadFile(share.getFilename(), share.getRole());
+
+        // 4. Serve the file payload back to the browser
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 
     /**

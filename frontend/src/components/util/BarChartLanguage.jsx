@@ -1,5 +1,5 @@
 import React from 'react';
-import '../assets/css/style.css';
+import '../../assets/css/style.css';
 
 export default function BarChartLanguage({ data }) {
     return (

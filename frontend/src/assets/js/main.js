@@ -73,7 +73,7 @@
   }
 
   /**
-   * Back to top button
+   * Back to top UtilComponent
    */
   let backtotop = select('.back-to-top')
   if (backtotop) {

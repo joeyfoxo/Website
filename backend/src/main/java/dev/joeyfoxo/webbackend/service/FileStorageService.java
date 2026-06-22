@@ -188,4 +188,40 @@ public class FileStorageService {
             throw new IllegalArgumentException("Access Denied: Sandbox root directory traversal block triggered.");
         }
     }
+
+    /**
+     * Public Download Scanner
+     * Searches across the /app/storage partitions to locate a file by its raw name.
+     */
+    public Resource loadFileByRawNameOnly(String filename) {
+        for (UserRole r : UserRole.values()) {
+            Path partitionDir = getTargetDirectory(r);
+            try (Stream<Path> stream = Files.walk(partitionDir)) {
+                Optional<Path> foundFile = stream
+                        .filter(path -> !Files.isDirectory(path))
+                        .filter(path -> path.getFileName().toString().equals(filename))
+                        .findFirst();
+                if (foundFile.isPresent()) {
+                    return new UrlResource(foundFile.get().toUri());
+                }
+            } catch (IOException ignored) {
+                // Fall through to check the next folder role partition
+            }
+        }
+        throw new RuntimeException("File not found anywhere inside /app/storage: " + filename);
+    }
+
+    public Resource loadFile(String filename, UserRole role) {
+        Path filePath = getTargetDirectory(role).resolve(filename).normalize();
+        try {
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
+                throw new RuntimeException("File not found or unreadable: " + filename);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Could not load file: " + filename, e);
+        }
+    }
 }

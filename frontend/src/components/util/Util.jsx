@@ -1,5 +1,3 @@
-import {Navigate} from "react-router-dom";
-import React from "react";
 
 /**
  * Determines the unique Material-UI theme color for each user rank.

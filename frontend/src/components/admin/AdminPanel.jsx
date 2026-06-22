@@ -20,11 +20,11 @@ import {
     Menu as MenuIcon
 } from '@mui/icons-material';
 import UserManagement from './UserManagement';
-import { useAuth } from '../login/AuthContext.jsx';
-import BackButton from "../button/BackButton.jsx";
-import SharedFilesManager from "./SharedFIleManager.jsx";
-import LogoutButton from "../button/LogoutButton.jsx";
 import {getRoleColor} from "../util/Util.jsx";
+import {useAuth} from "../../context/AuthContext.jsx";
+import BackButton from "../util/BackButton.jsx";
+import LogoutButton from "../util/LogoutButton.jsx";
+import SharedFilesManager from "./files/SharedFIleManager.jsx";
 
 const DRAWER_WIDTH = 260;
 

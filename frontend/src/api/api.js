@@ -229,3 +229,23 @@ export async function downloadFile(filename, displayName, role = null, path = ""
         handleError(error);
     }
 }
+
+/**
+ * File Sharing API Service
+ */
+export const shareFile = async (filename, role) => {
+    // Wrap the string in an object matching the backend's expected map key: "fullName"
+    // Axios will automatically apply 'Content-Type: application/json' now!
+    const response = await filesApi.post("/share", { fullName: filename, role: role });
+    return response.data; // Returns { shareToken: "..." }
+};
+
+/**
+ * Public Download Service
+ * Note: Does not require authentication/authorization headers
+ */
+export const downloadPublicFile = (shareToken) => {
+    // We return the URL directly for a simple <a> tag or window.location redirect
+    // Or use an axios instance without credentials/auth headers if you prefer
+    return `/api/files/public/download/${shareToken}`;
+};

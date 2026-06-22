@@ -11,12 +11,10 @@ import {
     TextField,
     Typography,
     useTheme,
-    IconButton
 } from "@mui/material";
-import { ArrowBackIosNew as BackIcon } from "@mui/icons-material";
-import { login, register } from "../api/api.js";
-import { useAuth } from "./AuthContext.jsx";
-import BackButton from "../button/BackButton.jsx";
+import { login, register } from "../../api/api.js";
+import { useAuth } from "../../context/AuthContext.jsx";
+import BackButton from "../util/BackButton.jsx";
 
 export default function AuthPage() {
     const theme = useTheme();
@@ -30,7 +28,7 @@ export default function AuthPage() {
 
     useEffect(() => {
         if (!authLoading && user && user.username) {
-            navigate("/account", { replace: true });
+            navigate("/admin", { replace: true });
         }
     }, [user, authLoading, navigate]);
 

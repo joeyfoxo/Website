@@ -1,29 +1,55 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
-    Box, Typography, Button, Paper, LinearProgress, Alert, Stack,
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    IconButton, Select, MenuItem, FormControl, InputLabel, TextField,
-    Breadcrumbs, Link, Dialog, DialogTitle, DialogContent, DialogActions
+    Alert,
+    Box,
+    Breadcrumbs,
+    Button,
+    FormControl,
+    IconButton,
+    InputLabel,
+    LinearProgress,
+    Link,
+    MenuItem,
+    Paper,
+    Select,
+    Stack,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TextField,
+    Typography
 } from '@mui/material';
 import {
-    CloudUpload as UploadIcon, InsertDriveFile as FileIcon,
-    Download as DownloadIcon, Refresh as RefreshIcon, Close as CloseIcon,
-    Delete as DeleteIcon, Edit as EditIcon, Check as CheckIcon,
-    Folder as FolderIcon, CreateNewFolder as NewFolderIcon,
-    NavigateNext as NavigateNextIcon, ContentCopy
+    Check as CheckIcon,
+    Close as CloseIcon,
+    CloudUpload as UploadIcon,
+    CreateNewFolder as NewFolderIcon,
+    Delete as DeleteIcon,
+    Download as DownloadIcon,
+    Edit as EditIcon,
+    Folder as FolderIcon,
+    InsertDriveFile as FileIcon,
+    NavigateNext as NavigateNextIcon,
+    Refresh as RefreshIcon,
+    Share as ShareIcon,
 } from '@mui/icons-material';
-
-// Target your API layer handlers (including your folder operations)
+import {isUserEqualAbove} from "../../util/Util.jsx";
+import {UserRole} from "../../../context/UserRole.ts";
 import {
-    uploadFile,
-    fetchFilesByRole,
-    downloadFile,
-    deleteFile,
-    renameFile,
     createFolder,
-} from '../api/api.js';
-import {isUserEqualAbove} from "../util/Util.jsx";
-import {UserRole} from "../login/UserRole.ts";
+    deleteFile,
+    downloadFile,
+    downloadPublicFile,
+    fetchFilesByRole,
+    renameFile,
+    shareFile,
+    uploadFile
+} from "../../../api/api.js";
+import ShareDialog from "./ShareDialog.jsx";
+import NewFolderDialog from "./NewFolderDialog.jsx";
 
 const SharedFilesManager = ({ currentUser }) => {
 
@@ -31,7 +57,6 @@ const SharedFilesManager = ({ currentUser }) => {
     const [selectedRole, setSelectedRole] = useState(currentUser.role.role);
 
     // --- PATH NAVIGATION STATE ---
-    // Tracks current nested path as an array: e.g., ['documents', 'images']
     const [currentPath, setCurrentPath] = useState([]);
 
     // UI States
@@ -41,9 +66,10 @@ const SharedFilesManager = ({ currentUser }) => {
     const [isUploading, setIsUploading] = useState(false);
     const [isDragActive, setIsDragActive] = useState(false);
 
-    // Folder Creation Modal States
+    // Dialog Toggle States
     const [folderModalOpen, setFolderModalOpen] = useState(false);
-    const [newFolderName, setNewFolderName] = useState("");
+    const [shareDialogOpen, setShareDialogOpen] = useState(false);
+    const [fileToShare, setFileToShare] = useState(null);
 
     // Inline Renaming Trackers
     const [editingFilename, setEditingFilename] = useState(null);
@@ -55,7 +81,6 @@ const SharedFilesManager = ({ currentUser }) => {
     const loadFilesList = useCallback(async () => {
         setIsLoading(true);
         try {
-            // Pass the target role partition AND the current active subpath string
             const data = await fetchFilesByRole(selectedRole, getPathString());
             setFiles(data || []);
         } catch (error) {
@@ -71,7 +96,7 @@ const SharedFilesManager = ({ currentUser }) => {
 
     const handleRoleDirectoryChange = (e) => {
         setSelectedRole(e.target.value);
-        setCurrentPath([]); // Reset to root of new partition node
+        setCurrentPath([]);
         setEditingFilename(null);
         setStatus({ type: '', message: '' });
     };
@@ -83,7 +108,6 @@ const SharedFilesManager = ({ currentUser }) => {
     };
 
     const handleBreadcrumbClick = (index) => {
-        // Slice path array back to targeted index marker
         setCurrentPath((prev) => prev.slice(0, index + 1));
         setEditingFilename(null);
     };
@@ -94,12 +118,10 @@ const SharedFilesManager = ({ currentUser }) => {
     };
 
     // --- DIR OPERATIONS ---
-    const handleCreateFolder = async () => {
-        if (!newFolderName.trim()) return;
+    const handleCreateFolder = async (folderName) => {
         try {
-            await createFolder(newFolderName.trim(), selectedRole, getPathString());
-            setStatus({ type: 'success', message: `Folder "${newFolderName.trim()}" created successfully.` });
-            setNewFolderName("");
+            await createFolder(folderName, selectedRole, getPathString());
+            setStatus({ type: 'success', message: `Folder "${folderName}" created successfully.` });
             setFolderModalOpen(false);
             await loadFilesList();
         } catch (error) {
@@ -113,7 +135,6 @@ const SharedFilesManager = ({ currentUser }) => {
         setStatus({ type: '', message: '' });
 
         try {
-            // Pass sub-path location along with file payload context
             await uploadFile(stagedFile, selectedRole, getPathString());
             setStatus({ type: 'success', message: "File uploaded successfully." });
             setStagedFile(null);
@@ -157,28 +178,25 @@ const SharedFilesManager = ({ currentUser }) => {
         }
     };
 
-    const handleDirectDownloadLink = async (file) => {
+    const handleShareClick = (file) => {
+        setFileToShare(file);
+        setShareDialogOpen(true);
+    };
+
+    const handleConfirmShare = async () => {
+        if (!fileToShare) return;
+        setStatus({ type: '', message: '' });
+
         try {
+            const { shareToken } = await shareFile(fileToShare.fullName, selectedRole);
+            const publicLink = `${window.location.origin}${downloadPublicFile(shareToken)}`;
 
-            const baseUrl = window.location.origin;
-            const encodedFilename = encodeURIComponent(file.fullName);
-            const encodedRole = encodeURIComponent(selectedRole);
-            const encodedPath = encodeURIComponent(getPathString());
-
-            const directDownloadUrl = `${baseUrl}/api/files/download/${encodedFilename}?role=${encodedRole}&path=${encodedPath}`;
-
-            await navigator.clipboard.writeText(directDownloadUrl);
-
-            setStatus({
-                type: 'success',
-                message: `Direct download link for "${file.displayName}" copied to clipboard!`
-            });
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            setStatus({ type: 'success', message: `Public Link: "${publicLink}" created successfully.` });
         } catch (error) {
-            setStatus({
-                type: 'error',
-                message: "Failed to copy the link to clipboard."
-            });
+            setStatus({ type: 'error', message: error.message || "Failed to generate public share token link." });
+        } finally {
+            setShareDialogOpen(false);
+            setFileToShare(null);
         }
     };
 
@@ -279,7 +297,13 @@ const SharedFilesManager = ({ currentUser }) => {
                     </Stack>
                 </Box>
 
-                {/* --- PATH BREADCRUMBS UI NAVIGATION --- */}
+                {status.message && (
+                    <Alert severity={status.type} variant="outlined" sx={{ borderRadius: 2 }} onClose={() => setStatus({ type: '', message: '' })}>
+                        {status.message}
+                    </Alert>
+                )}
+
+                {/* Breadcrumbs Navigation */}
                 <Paper variant="outlined" sx={{ px: 2, py: 1, borderRadius: 2, bgcolor: 'background.default', display: 'flex', alignItems: 'center' }}>
                     <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
                         <Link
@@ -309,12 +333,6 @@ const SharedFilesManager = ({ currentUser }) => {
                         })}
                     </Breadcrumbs>
                 </Paper>
-
-                {status.message && (
-                    <Alert severity={status.type} variant="outlined" sx={{ borderRadius: 2 }} onClose={() => setStatus({ type: '', message: '' })}>
-                        {status.message}
-                    </Alert>
-                )}
 
                 {/* Upload Zone */}
                 <Paper
@@ -352,7 +370,7 @@ const SharedFilesManager = ({ currentUser }) => {
 
                 {isUploading && <LinearProgress sx={{ borderRadius: 1, height: 4 }} />}
 
-                {/* Object Table Layout */}
+                {/* File Explorer Table */}
                 <Box>
                     {isLoading ? (
                         <LinearProgress sx={{ my: 4 }} />
@@ -379,7 +397,6 @@ const SharedFilesManager = ({ currentUser }) => {
                                                 ) : (
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                                         {file.isFolder ? (
-                                                            // Clicking on folders triggers navigation down the path array tree
                                                             <Link component="button" color="primary" onClick={() => handleFolderClick(file.displayName)} sx={{ display: 'flex', alignItems: 'center', gap: 1, textDecoration: 'none', fontWeight: 600, border: 'none', background: 'none', cursor: 'pointer', p: 0 }}>
                                                                 <FolderIcon sx={{ color: '#ffa726' }} fontSize="small" />
                                                                 {file.displayName}
@@ -414,8 +431,8 @@ const SharedFilesManager = ({ currentUser }) => {
                                                             {isUserEqualAbove(currentUser, UserRole.ADMIN) && (
                                                                 <IconButton color="error" size="small" onClick={() => handleDelete(file)} title="Delete"><DeleteIcon fontSize="small" /></IconButton>
                                                             )}
-                                                            {isUserEqualAbove(currentUser, UserRole.TRUSTED) && (
-                                                                <IconButton color="success" size="small" onClick={() => handleDirectDownloadLink(file)} title="Delete"><ContentCopy  fontSize="small" /></IconButton>
+                                                            {isUserEqualAbove(currentUser, UserRole.ADMIN) && (
+                                                                <IconButton color="success" size="small" onClick={() => handleShareClick(file)} title="ShareDialog"><ShareIcon fontSize="small" /></IconButton>
                                                             )}
                                                         </>
                                                     )}
@@ -430,20 +447,20 @@ const SharedFilesManager = ({ currentUser }) => {
                 </Box>
             </Stack>
 
-            {/* --- NEW FOLDER DIALOG TRIGGER NODE --- */}
-            <Dialog open={folderModalOpen} onClose={() => setFolderModalOpen(false)} size="small">
-                <DialogTitle>Create New Folder</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        autoFocus margin="dense" label="Folder Name" type="text" fullWidth size="small" variant="outlined"
-                        value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)} sx={{ mt: 1, minWidth: 300 }}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setFolderModalOpen(false)}>Cancel</Button>
-                    <Button onClick={handleCreateFolder} color="success" variant="contained">Create Folder</Button>
-                </DialogActions>
-            </Dialog>
+            {/* Reusable Externalized New Folder Dialog */}
+            <NewFolderDialog
+                open={folderModalOpen}
+                onClose={() => setFolderModalOpen(false)}
+                onConfirm={handleCreateFolder}
+            />
+
+            {/* Reusable Externalized Public ShareDialog Dialog */}
+            <ShareDialog
+                open={shareDialogOpen}
+                onClose={() => setShareDialogOpen(false)}
+                fileToShare={fileToShare}
+                onConfirm={handleConfirmShare}
+            />
         </Box>
     );
 };

@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import PureCounter from '@srexi/purecounterjs';
 import '../assets/css/style.css';
-import BarChartLanguage from './BarChartLanguage.jsx';
 import { Typography, useTheme } from '@mui/material';
+import BarChartLanguage from "./util/BarChartLanguage.jsx";
 
 export default function Facts() {
     const [repoCount, setRepoCount] = useState(0);

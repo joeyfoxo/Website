@@ -17,12 +17,12 @@ import {
     Menu as MenuIcon,
     AdminPanelSettings as AdminIcon,
 } from '@mui/icons-material';
-import ThemeToggle from './util/ThemeToggle';
-import { ColorModeContext } from "./util/ThemeContext.jsx";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "./login/AuthContext.jsx";
 import {isUserEqualAbove} from "./util/Util.jsx";
-import { UserRole } from './login/UserRole';
+import {useAuth} from "../context/AuthContext.jsx";
+import {ColorModeContext} from "./theme/ThemeContext.jsx";
+import ThemeToggle from "./theme/ThemeToggle.jsx";
+import {UserRole} from "../context/UserRole.ts";
 
 const navItems = [
     { icon: <HomeIcon />, text: 'Home', href: '#hero', className: 'bx bx-home' },

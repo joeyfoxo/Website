@@ -2,8 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 import { Logout } from "@mui/icons-material";
-import { logout } from "../api/api.js";
-import { useAuth } from "../login/AuthContext.jsx"; // Adjust path if needed
+import { logout } from "../../api/api.js";
+import { useAuth } from "../../context/AuthContext.jsx"; // Adjust path if needed
 
 export default function LogoutButton({ sx }) {
     const { setUser } = useAuth();

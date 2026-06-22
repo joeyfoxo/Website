@@ -4,7 +4,7 @@ import {
     Select, MenuItem, Alert, CircularProgress, Chip, Box, Typography, IconButton,
     Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Tooltip
 } from '@mui/material';
-import { fetchAllUsers, updateUserRole, deleteProfile } from '../api/api.js';
+import { fetchAllUsers, updateUserRole, deleteProfile } from '../../api/api.js';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
 import UndoIcon from '@mui/icons-material/Undo';

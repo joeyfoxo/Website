@@ -18,4 +18,13 @@ public enum UserRole {
         this.description = description;
     }
 
+    public static UserRole getRoleByName(String name) {
+        for (UserRole role : UserRole.values()) {
+            if (role.name().equalsIgnoreCase(name)) {
+                return role;
+            }
+        }
+        throw new IllegalArgumentException("No role found with name: " + name);
+    }
+
 }
