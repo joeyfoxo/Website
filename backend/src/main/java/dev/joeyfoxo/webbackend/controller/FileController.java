@@ -100,6 +100,11 @@ public class FileController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        if (file.getSize() > 50 * 1024 * 1024) { // 50 MB limit
+            return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                    .body(Map.of("message", "File size exceeds the 50MB limit."));
+        }
+
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found."));
 
