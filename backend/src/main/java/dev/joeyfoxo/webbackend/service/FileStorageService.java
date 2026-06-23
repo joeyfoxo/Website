@@ -212,16 +212,30 @@ public class FileStorageService {
     }
 
     public Resource loadFile(String filename, UserRole role) {
-        Path filePath = getTargetDirectory(role).resolve(filename).normalize();
-        try {
-            Resource resource = new UrlResource(filePath.toUri());
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            } else {
-                throw new RuntimeException("File not found or unreadable: " + filename);
+        Path partitionDir = getTargetDirectory(role);
+
+        try (Stream<Path> stream = Files.walk(partitionDir)) {
+            // Scan the role partition down the tree to locate the file
+            Optional<Path> foundFile = stream
+                    .filter(path -> !Files.isDirectory(path))
+                    .filter(path -> path.getFileName().toString().equals(filename))
+                    .findFirst();
+
+            if (foundFile.isPresent()) {
+                Path filePath = foundFile.get();
+
+                // Critical: Ensure it hasn't escaped the sandbox via path tricks
+                validateBoundary(filePath, role);
+
+                Resource resource = new UrlResource(filePath.toUri());
+                if (resource.exists() || resource.isReadable()) {
+                    return resource;
+                }
             }
+
+            throw new RuntimeException("File not found or unreadable inside " + role + " partition: " + filename);
         } catch (Exception e) {
-            throw new RuntimeException("Could not load file: " + filename, e);
+            throw new RuntimeException("Could not load file via partition scan: " + filename, e);
         }
     }
 }
