@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
-import {getProfile} from "../api/api.js";
+import { Box } from "@mui/material"; // 🚀 Imported to manage background shell color natively
+import { getProfile } from "../api/api.js";
 
 const AuthContext = createContext();
 
@@ -17,9 +18,8 @@ export const AuthProvider = ({ children }) => {
             const userData = await getProfile();
             setUser(userData);
         } catch (err) {
+            // Fail completely silently. User state stays null.
             setUser(null);
-            // If it's a 403/401, we know the session is dead.
-            // Don't throw the error further or it might trigger global error handlers
         } finally {
             setLoading(false);
             hasChecked.current = true; // Mark as checked
@@ -29,6 +29,20 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         verifySession();
     }, []);
+
+    // 🛡️ Kill the white flash right at the root provider level
+    if (loading) {
+        return (
+            <Box
+                sx={{
+                    minHeight: "100vh",
+                    width: "100vw",
+                    bgcolor: "background.default", // Pulls your exact light/dark mode canvas color instantly
+                    color: "text.primary"
+                }}
+            />
+        );
+    }
 
     return (
         <AuthContext.Provider value={{ user, setUser, loading, verifySession, isEditing, setIsEditing }}>

@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -221,15 +222,26 @@ public class FileController {
     public ResponseEntity<?> generateShareToken(@RequestBody Map<String, String> request) {
         String filename = request.get("fullName");
         UserRole role = UserRole.getRoleByName(request.get("role"));
+
         // Validation guard
         if (filename == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "Missing required fields for file sharing."));
         }
 
         try {
+            // 1. Check if a valid, unexpired token already exists for this exact asset
+            Optional<FileShare> existingShare = fileShareRepository
+                    .findByFilenameAndRoleAndExpiresAtAfter(filename, role, LocalDateTime.now());
+
+            if (existingShare.isPresent()) {
+                return ResponseEntity.ok(Map.of("shareToken", existingShare.get().getId().toString()));
+            }
+
+            // 2. Otherwise, allocate a fresh tracking token
             LocalDateTime expiresAt = LocalDateTime.now().plusHours(24);
-            FileShare fileShare = new FileShare(filename,role, expiresAt);
+            FileShare fileShare = new FileShare(filename, role, expiresAt);
             FileShare savedShare = fileShareRepository.save(fileShare);
+
             return ResponseEntity.ok(Map.of("shareToken", savedShare.getId().toString()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", e.getMessage()));
